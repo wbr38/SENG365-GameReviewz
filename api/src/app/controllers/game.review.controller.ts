@@ -1,8 +1,8 @@
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 import Logger from "../../config/logger";
 
 
-const getGameReviews = async(req: Request, res: Response): Promise<void> => {
+const getGameReviews = async (req: Request, res: Response): Promise<void> => {
     try {
         res.statusMessage = "Not Implemented";
         res.status(501).send();
@@ -11,9 +11,9 @@ const getGameReviews = async(req: Request, res: Response): Promise<void> => {
         res.statusMessage = "Internal Server Error";
         res.status(500).send();
     }
-}
+};
 
-const addGameReview = async(req: Request, res: Response): Promise<void> => {
+const addGameReview = async (req: Request, res: Response): Promise<void> => {
     try {
         res.statusMessage = "Not Implemented";
         res.status(501).send();
@@ -22,9 +22,9 @@ const addGameReview = async(req: Request, res: Response): Promise<void> => {
         res.statusMessage = "Internal Server Error";
         res.status(500).send();
     }
-}
+};
 
 
 
 
-export {getGameReviews, addGameReview};
+export { getGameReviews, addGameReview };

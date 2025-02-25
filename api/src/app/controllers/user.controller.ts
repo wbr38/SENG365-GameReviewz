@@ -1,5 +1,5 @@
-import {Request, Response} from "express";
-import Logger from '../../config/logger';
+import { Request, Response } from "express";
+import Logger from "../../config/logger";
 
 
 const register = async (req: Request, res: Response): Promise<void> => {
@@ -11,7 +11,7 @@ const register = async (req: Request, res: Response): Promise<void> => {
         res.statusMessage = "Internal Server Error";
         res.status(500).send();
     }
-}
+};
 
 const login = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -22,7 +22,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
         res.statusMessage = "Internal Server Error";
         res.status(500).send();
     }
-}
+};
 
 const logout = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -33,7 +33,7 @@ const logout = async (req: Request, res: Response): Promise<void> => {
         res.statusMessage = "Internal Server Error";
         res.status(500).send();
     }
-}
+};
 
 const view = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -44,7 +44,7 @@ const view = async (req: Request, res: Response): Promise<void> => {
         res.statusMessage = "Internal Server Error";
         res.status(500).send();
     }
-}
+};
 
 const update = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -55,6 +55,6 @@ const update = async (req: Request, res: Response): Promise<void> => {
         res.statusMessage = "Internal Server Error";
         res.status(500).send();
     }
-}
+};
 
-export {register, login, logout, view, update}
+export { register, login, logout, view, update };

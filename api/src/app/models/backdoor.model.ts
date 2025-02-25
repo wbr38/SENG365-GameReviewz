@@ -1,23 +1,23 @@
-import {getPool} from "../../config/db";
-import fs from 'mz/fs';
-import * as defaultUsers from "../resources/default_users.json"
+import { getPool } from "../../config/db";
+import fs from "mz/fs";
+import * as defaultUsers from "../resources/default_users.json";
 import * as passwords from "../services/passwords";
-const imageDirectory = './storage/images/';
-const defaultPhotoDirectory = './storage/default/';
+const imageDirectory = "./storage/images/";
+const defaultPhotoDirectory = "./storage/default/";
 
 import Logger from "../../config/logger";
-import {OkPacket, ResultSetHeader, RowDataPacket} from "mysql2";
+import { OkPacket, ResultSetHeader, RowDataPacket } from "mysql2";
 
 const resetDb = async (): Promise<any> => {
     const promises = [];
 
-    const sql = await fs.readFile('src/app/resources/create_database.sql', 'utf8');
+    const sql = await fs.readFile("src/app/resources/create_database.sql", "utf8");
     Logger.info("Resetting Database...");
     promises.push(getPool().query(sql));  // sync call to recreate DB
 
     const files = await fs.readdir(imageDirectory);
     for (const file of files) {
-        if (file !== '.gitkeep') promises.push(fs.unlink(imageDirectory + file));  // sync call to delete photo
+        if (file !== ".gitkeep") promises.push(fs.unlink(imageDirectory + file));  // sync call to delete photo
     }
 
     return Promise.all(promises);  // async wait for DB recreation and images to be deleted
@@ -26,7 +26,7 @@ const resetDb = async (): Promise<any> => {
 const loadData = async (): Promise<any> => {
     await populateDefaultUsers();
     try {
-        const sql = await fs.readFile('src/app/resources/resample_database.sql', 'utf8');
+        const sql = await fs.readFile("src/app/resources/resample_database.sql", "utf8");
         await getPool().query(sql);
     } catch (err) {
         Logger.error(err.sql);
@@ -44,7 +44,7 @@ const loadData = async (): Promise<any> => {
  * @returns {Promise<void>}
  */
 const populateDefaultUsers = async (): Promise<void> => {
-    const createSQL = 'INSERT INTO `user` (`email`, `first_name`, `last_name`, `image_filename`, `password`) VALUES ?';
+    const createSQL = "INSERT INTO `user` (`email`, `first_name`, `last_name`, `image_filename`, `password`) VALUES ?";
 
     const properties = defaultUsers.properties;
     let usersData = defaultUsers.usersData;
@@ -53,7 +53,7 @@ const populateDefaultUsers = async (): Promise<void> => {
     // Ensures that the user arrays with hashed passwords won't persist across multiple calls to this function
     usersData = usersData.map((user: any) => ([...user]));
 
-    const passwordIndex = properties.indexOf('password');
+    const passwordIndex = properties.indexOf("password");
     await Promise.all(usersData.map((user: any) => changePasswordToHash(user, passwordIndex)));
 
     try {
@@ -62,9 +62,9 @@ const populateDefaultUsers = async (): Promise<void> => {
         Logger.error(err.sql);
         throw err;
     }
-}
+};
 
-async function changePasswordToHash(user:any, passwordIndex:number) {
+async function changePasswordToHash(user: any, passwordIndex: number): Promise<void> {
     user[passwordIndex] = await passwords.hash(user[passwordIndex]);
 }
 
@@ -78,4 +78,4 @@ const executeSql = async (sql: string): Promise<RowDataPacket[][] | RowDataPacke
     }
 };
 
-export {resetDb, loadData, executeSql}
+export { resetDb, loadData, executeSql };

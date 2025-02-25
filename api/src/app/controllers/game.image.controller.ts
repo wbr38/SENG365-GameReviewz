@@ -1,4 +1,4 @@
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 import Logger from "../../config/logger";
 
 
@@ -11,7 +11,7 @@ const getImage = async (req: Request, res: Response): Promise<void> => {
         res.statusMessage = "Internal Server Error";
         res.status(500).send();
     }
-}
+};
 
 const setImage = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -22,7 +22,7 @@ const setImage = async (req: Request, res: Response): Promise<void> => {
         res.statusMessage = "Internal Server Error";
         res.status(500).send();
     }
-}
+};
 
 
-export {getImage, setImage};
+export { getImage, setImage };

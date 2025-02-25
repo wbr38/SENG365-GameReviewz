@@ -1,8 +1,8 @@
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 import Logger from "../../config/logger";
 
 
-const getAllGames = async(req: Request, res: Response): Promise<void> => {
+const getAllGames = async (req: Request, res: Response): Promise<void> => {
     try {
         res.statusMessage = "Not Implemented";
         res.status(501).send();
@@ -11,9 +11,9 @@ const getAllGames = async(req: Request, res: Response): Promise<void> => {
         res.statusMessage = "Internal Server Error";
         res.status(500).send();
     }
-}
+};
 
-const getGame = async(req: Request, res: Response): Promise<void> => {
+const getGame = async (req: Request, res: Response): Promise<void> => {
     try {
         res.statusMessage = "Not Implemented";
         res.status(501).send();
@@ -22,9 +22,9 @@ const getGame = async(req: Request, res: Response): Promise<void> => {
         res.statusMessage = "Internal Server Error";
         res.status(500).send();
     }
-}
+};
 
-const addGame = async(req: Request, res: Response): Promise<void> => {
+const addGame = async (req: Request, res: Response): Promise<void> => {
     try {
         res.statusMessage = "Not Implemented";
         res.status(501).send();
@@ -33,10 +33,10 @@ const addGame = async(req: Request, res: Response): Promise<void> => {
         res.statusMessage = "Internal Server Error";
         res.status(500).send();
     }
-}
+};
 
 
-const editGame = async(req: Request, res: Response): Promise<void> => {
+const editGame = async (req: Request, res: Response): Promise<void> => {
     try {
         res.statusMessage = "Not Implemented";
         res.status(501).send();
@@ -45,9 +45,9 @@ const editGame = async(req: Request, res: Response): Promise<void> => {
         res.statusMessage = "Internal Server Error";
         res.status(500).send();
     }
-}
+};
 
-const deleteGame = async(req: Request, res: Response): Promise<void> => {
+const deleteGame = async (req: Request, res: Response): Promise<void> => {
     try {
         res.statusMessage = "Not Implemented";
         res.status(501).send();
@@ -56,10 +56,10 @@ const deleteGame = async(req: Request, res: Response): Promise<void> => {
         res.statusMessage = "Internal Server Error";
         res.status(500).send();
     }
-}
+};
 
 
-const getGenres = async(req: Request, res: Response): Promise<void> => {
+const getGenres = async (req: Request, res: Response): Promise<void> => {
     try {
         res.statusMessage = "Not Implemented";
         res.status(501).send();
@@ -68,9 +68,9 @@ const getGenres = async(req: Request, res: Response): Promise<void> => {
         res.statusMessage = "Internal Server Error";
         res.status(500).send();
     }
-}
+};
 
-const getPlatforms = async(req: Request, res: Response): Promise<void> => {
+const getPlatforms = async (req: Request, res: Response): Promise<void> => {
     try {
         res.statusMessage = "Not Implemented";
         res.status(501).send();
@@ -79,7 +79,7 @@ const getPlatforms = async(req: Request, res: Response): Promise<void> => {
         res.statusMessage = "Internal Server Error";
         res.status(500).send();
     }
-}
+};
 
 
-export {getAllGames, getGame, addGame, editGame, deleteGame, getGenres, getPlatforms};
+export { getAllGames, getGame, addGame, editGame, deleteGame, getGenres, getPlatforms };

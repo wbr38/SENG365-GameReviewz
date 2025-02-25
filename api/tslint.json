@@ -1,11 +1,32 @@
 {
-  "defaultSeverity": "error",
-  "extends": [
-    "tslint:recommended"
-  ],
-  "jsRules": {},
-  "rules": {
-    "trailing-comma": [ false ]
-  },
-  "rulesDirectory": []
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:recommended"
+    ],
+    "rules": {
+        "indent": [true, "spaces", 4],
+        "quotemark": [true, "double"],
+        "semicolon": [true, "always"],
+        "member-access": [true, "no-public"],
+        "typedef": [true, "call-signature", "parameter"],
+        "typedef-whitespace": [
+            true,
+            {
+                "call-signature": "nospace",
+                "index-signature": "nospace",
+                "parameter": "nospace",
+                "property-declaration": "onespace",
+                "variable-declaration": "nospace"
+            }
+        ],
+        "no-empty": false,
+        "no-unused-variable": false,
+        "no-namespace": false,
+        "ban-ts-ignore": false,
+        "no-floating-promises": true,
+        "trailing-comma": false
+    },
+    "linterOptions": {
+        "exclude": ["node_modules/**"]
+    }
 }

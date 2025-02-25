@@ -1,6 +1,6 @@
-import mysql from 'mysql2/promise';
-import dotenv from 'dotenv';
-import Logger from './logger';
+import mysql from "mysql2/promise";
+import dotenv from "dotenv";
+import Logger from "./logger";
 dotenv.config();
 // technically typed : {pool: mysql.Pool}
 const state: any = {
@@ -21,8 +21,8 @@ const connect = async (): Promise<void> => {
         }
     } );
     await state.pool.getConnection(); // Check connection
-    Logger.info(`Successfully connected to database`)
-    return
+    Logger.info(`Successfully connected to database`);
+    return;
 };
 
 // technically typed : () => mysql.Pool
@@ -30,4 +30,4 @@ const getPool = () => {
     return state.pool;
 };
 
-export {connect, getPool}
+export { connect, getPool };
