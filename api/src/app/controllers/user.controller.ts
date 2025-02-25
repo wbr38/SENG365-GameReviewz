@@ -15,8 +15,8 @@ const register = async (req: Request, res: Response): Promise<void> => {
 
     const { email, password, firstName, lastName } = req.body;
     try {
-        const existingUsers = await users.getOne(email);
-        if (existingUsers.length >= 1) {
+        const existingUser = await users.getOne(email);
+        if (existingUser) {
             res.status(403).send("Email is already in use");
             return;
         }
