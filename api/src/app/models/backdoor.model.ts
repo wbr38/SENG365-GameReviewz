@@ -1,12 +1,12 @@
-import { getPool } from "../../config/db";
+import { QueryResult } from "mysql2";
 import fs from "mz/fs";
+import { getPool } from "../../config/db";
+import Logger from "../../config/logger";
 import * as defaultUsers from "../resources/default_users.json";
 import * as passwords from "../services/passwords";
+
 const imageDirectory = "./storage/images/";
 const defaultPhotoDirectory = "./storage/default/";
-
-import Logger from "../../config/logger";
-import { OkPacket, ResultSetHeader, RowDataPacket } from "mysql2";
 
 const resetDb = async (): Promise<any> => {
     const promises = [];
@@ -68,7 +68,7 @@ async function changePasswordToHash(user: any, passwordIndex: number): Promise<v
     user[passwordIndex] = await passwords.hash(user[passwordIndex]);
 }
 
-const executeSql = async (sql: string): Promise<RowDataPacket[][] | RowDataPacket[] | OkPacket | OkPacket[] | ResultSetHeader> => {
+const executeSql = async (sql: string): Promise<QueryResult> => {
     try {
         const [rows] = await getPool().query(sql);
         return rows;
@@ -78,4 +78,5 @@ const executeSql = async (sql: string): Promise<RowDataPacket[][] | RowDataPacke
     }
 };
 
-export { resetDb, loadData, executeSql };
+export { executeSql, loadData, resetDb };
+

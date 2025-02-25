@@ -2,10 +2,10 @@ import mysql from "mysql2/promise";
 import dotenv from "dotenv";
 import Logger from "./logger";
 dotenv.config();
-// technically typed : {pool: mysql.Pool}
-const state: any = {
+
+const state: { pool: mysql.Pool} = {
     pool: null
-};
+}
 
 const connect = async (): Promise<void> => {
     state.pool = mysql.createPool( {
@@ -25,7 +25,6 @@ const connect = async (): Promise<void> => {
     return;
 };
 
-// technically typed : () => mysql.Pool
 const getPool = () => {
     return state.pool;
 };

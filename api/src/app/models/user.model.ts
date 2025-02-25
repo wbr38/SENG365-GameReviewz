@@ -30,5 +30,5 @@ export async function insert(
     const query = 'INSERT INTO user (email, first_name, last_name, password) values ( ?, ?, ?, ? )';
     const [ result ] = await conn.query( query, [ email, firstName, lastName, hashedPassword ] );
     await conn.release();
-    return result;
+    return result as ResultSetHeader;
 }
