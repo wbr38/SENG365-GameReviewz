@@ -8,16 +8,24 @@ ajv.addFormat("integer", /^\d+$/);
 ajv.addFormat("boolean", /^(true|false)$/i);
 ajv.addFormat("datetime", /^\d\d\d\d-\d\d?-\d\d? \d\d?:\d\d?:\d\d?$/);
 
-const validate = async (schema: object, data: any) => {
-    try {
-        const validator = ajv.compile(schema);
-        const valid = await validator(data);
-        if (!valid)
-            return ajv.errorsText(validator.errors);
-        return true;
-    } catch (err) {
-        return err.message;
-    }
-};
+interface ValidationResult
+{
+    valid: boolean;
+    errorText: string;
+}
 
-export { validate };
+export function validate<T>(schema: object, data: T): ValidationResult {
+    try {
+        const validator = ajv.compile<T>(schema);
+        const valid = validator(data);
+        return {
+            valid,
+            errorText: ajv.errorsText(validator.errors)
+        };
+    } catch (err) {
+        return {
+            valid: false,
+            errorText: err.message
+        }
+    }
+}
