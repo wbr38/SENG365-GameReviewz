@@ -4,33 +4,27 @@ import Logger from "../../config/logger";
 
 const getAllGames = async (req: Request, res: Response): Promise<void> => {
     try {
-        res.statusMessage = "Not Implemented";
         res.status(501).send();
     } catch (err) {
         Logger.error(err);
-        res.statusMessage = "Internal Server Error";
         res.status(500).send();
     }
 };
 
 const getGame = async (req: Request, res: Response): Promise<void> => {
     try {
-        res.statusMessage = "Not Implemented";
         res.status(501).send();
     } catch (err) {
         Logger.error(err);
-        res.statusMessage = "Internal Server Error";
         res.status(500).send();
     }
 };
 
 const addGame = async (req: Request, res: Response): Promise<void> => {
     try {
-        res.statusMessage = "Not Implemented";
         res.status(501).send();
     } catch (err) {
         Logger.error(err);
-        res.statusMessage = "Internal Server Error";
         res.status(500).send();
     }
 };
@@ -38,22 +32,18 @@ const addGame = async (req: Request, res: Response): Promise<void> => {
 
 const editGame = async (req: Request, res: Response): Promise<void> => {
     try {
-        res.statusMessage = "Not Implemented";
         res.status(501).send();
     } catch (err) {
         Logger.error(err);
-        res.statusMessage = "Internal Server Error";
         res.status(500).send();
     }
 };
 
 const deleteGame = async (req: Request, res: Response): Promise<void> => {
     try {
-        res.statusMessage = "Not Implemented";
         res.status(501).send();
     } catch (err) {
         Logger.error(err);
-        res.statusMessage = "Internal Server Error";
         res.status(500).send();
     }
 };
@@ -61,22 +51,18 @@ const deleteGame = async (req: Request, res: Response): Promise<void> => {
 
 const getGenres = async (req: Request, res: Response): Promise<void> => {
     try {
-        res.statusMessage = "Not Implemented";
         res.status(501).send();
     } catch (err) {
         Logger.error(err);
-        res.statusMessage = "Internal Server Error";
         res.status(500).send();
     }
 };
 
 const getPlatforms = async (req: Request, res: Response): Promise<void> => {
     try {
-        res.statusMessage = "Not Implemented";
         res.status(501).send();
     } catch (err) {
         Logger.error(err);
-        res.statusMessage = "Internal Server Error";
         res.status(500).send();
     }
 };
