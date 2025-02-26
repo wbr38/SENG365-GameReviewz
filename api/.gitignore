@@ -3,6 +3,8 @@ storage/images/*
 !storage/images/.gitkeep
 dist
 
+tsconfig.tsbuildinfo
+
 # Created by .ignore support plugin (hsz.mobi)
 logs
 *.log
