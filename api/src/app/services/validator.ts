@@ -8,8 +8,7 @@ ajv.addFormat("integer", /^\d+$/);
 ajv.addFormat("boolean", /^(true|false)$/i);
 ajv.addFormat("datetime", /^\d\d\d\d-\d\d?-\d\d? \d\d?:\d\d?:\d\d?$/);
 
-interface ValidationResult
-{
+interface ValidationResult {
     valid: boolean;
     errorText: string;
 }
@@ -26,6 +25,6 @@ export function validate<T>(schema: object, data: T): ValidationResult {
         return {
             valid: false,
             errorText: err.message
-        }
+        };
     }
 }

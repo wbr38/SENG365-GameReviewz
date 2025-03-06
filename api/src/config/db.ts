@@ -3,9 +3,9 @@ import dotenv from "dotenv";
 import Logger from "./logger";
 dotenv.config();
 
-const state: { pool: mysql.Pool} = {
-    pool: null as unknown as mysql.Pool 
-}
+const state: { pool: mysql.Pool } = {
+    pool: null as unknown as mysql.Pool
+};
 
 const connect = async (): Promise<void> => {
     const port = process.env.SENG365_MYSQL_PORT ? parseInt(process.env.SENG365_MYSQL_PORT, 10) : 3306;
