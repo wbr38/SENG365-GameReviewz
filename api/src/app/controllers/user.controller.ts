@@ -15,7 +15,7 @@ const register = async (req: Request, res: Response): Promise<void> => {
 
     const { email, password, firstName, lastName } = req.body;
     try {
-        const existingUser = await users.getOne(email);
+        const existingUser = await users.getUserByEmail(email);
         if (existingUser) {
             res.status(403).send("Email is already in use");
             return;
@@ -53,8 +53,22 @@ const login = async (req: Request, res: Response): Promise<void> => {
 };
 
 const logout = async (req: Request, res: Response): Promise<void> => {
+    const authToken = req.get("X-Authorization");
+
+    // Auth token not provided
+    if (!authToken) {
+        res.status(401).send();
+        return;
+    }
+
     try {
-        res.status(501).send();
+        const loggedOut = await users.logout(authToken);
+        if (!loggedOut) {
+            res.status(401).send();
+            return;
+        }
+
+        res.status(200).send();
     } catch (err) {
         Logger.error(err);
         res.status(500).send();

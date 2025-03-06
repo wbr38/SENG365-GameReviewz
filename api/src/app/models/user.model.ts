@@ -5,14 +5,25 @@ import Logger from "../../config/logger";
 import { User } from "../interfaces/user.interface";
 import * as passwords from "../services/passwords";
 
-export async function getOne(email: string): Promise<User | null> {
-    // TODO: Remember that /users/{id} API should only include the "email" field if the currently authenticated user is viewing their own details
-    // Will be done with X-Authorization header?
-    // But that functionality probably would be included in the controller side? not sure
-    Logger.info(`Getting user ${email} from the database`);
+export async function getUserByEmail(email: string): Promise<User | null> {
+    Logger.info(`Fetching user ${email} from the database`);
     const conn = await getPool().getConnection();
     const query = "SELECT * from user where email = ?";
     const [rows] = await conn.query(query, [email]);
+    await conn.release();
+
+    if (Array.isArray(rows) && rows.length > 0)
+        return rows[0] as User;
+
+    return null;
+}
+
+export async function getUserByToken(authToken: string): Promise<User | null> {
+    // Probably a bad idea to log auth tokens
+    // Logger.info(`Getting user ${email} from the database`);
+    const conn = await getPool().getConnection();
+    const query = "SELECT * from user where auth_token = ?";
+    const [rows] = await conn.query(query, [authToken]);
     await conn.release();
 
     if (Array.isArray(rows) && rows.length > 0)
@@ -29,7 +40,6 @@ export async function insert(
 ): Promise<ResultSetHeader> {
     const hashedPassword = await passwords.hash(password);
 
-    // TODO: Hash password using bcrypt
     Logger.info(`Adding user "${email}" to the database`);
     const conn = await getPool().getConnection();
     const query = "INSERT INTO user (email, first_name, last_name, password) values ( ?, ?, ?, ? )";
@@ -47,7 +57,7 @@ export async function login(
     email: string,
     password: string
 ): Promise<LoginResponse | false> {
-    const user = await getOne(email);
+    const user = await getUserByEmail(email);
     if (!user)
         return false;
 
@@ -60,4 +70,19 @@ export async function login(
         userId: user.id,
         token: randtoken.generate(AUTH_TOKEN_LENGTH)
     };
+}
+
+export async function logout(
+    authToken: string
+): Promise<boolean> {
+    const user = await getUserByToken(authToken);
+    if (!user)
+        return false;
+
+    Logger.info(`Logging out user ${user.email} from the database`);
+    const conn = await getPool().getConnection();
+    const query = "UPDATE user SET auth_token=null WHERE email = ?";
+    await conn.query(query, [user.email]);
+    await conn.release();
+    return true;
 }
