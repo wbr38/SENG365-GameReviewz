@@ -18,6 +18,19 @@ export async function getUserByEmail(email: string): Promise<User | null> {
     return null;
 }
 
+export async function getUserById(id: number): Promise<User | null> {
+    Logger.info(`Fetching user with id #${id} from the database`);
+    const conn = await getPool().getConnection();
+    const query = "SELECT * from user where id = ?";
+    const [rows] = await conn.query(query, [id]);
+    await conn.release();
+
+    if (Array.isArray(rows) && rows.length > 0)
+        return rows[0] as User;
+
+    return null;
+}
+
 export async function getUserByToken(authToken: string): Promise<User | null> {
     // Probably a bad idea to log auth tokens
     // Logger.info(`Getting user ${email} from the database`);

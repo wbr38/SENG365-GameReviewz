@@ -75,9 +75,55 @@ const logout = async (req: Request, res: Response): Promise<void> => {
     }
 };
 
+interface ViewUserResponse {
+    /** Only defined if the user is viewing their own profile */
+    email?: string;
+    firstName: string;
+    lastName: string;
+}
+
 const view = async (req: Request, res: Response): Promise<void> => {
     try {
-        res.status(501).send();
+        // TODO: Can you view other users while not being logged in at all?
+        // i.e. remove this if you don't need to be logged in
+        const authToken = req.get("X-Authorization");
+        if (!authToken) {
+            res.status(400).send();
+            return;
+        }
+
+        // Fetch user from auth header
+        const loggedInUser = await users.getUserByToken(authToken);
+        if (!loggedInUser) {
+            res.status(400).send();
+            return;
+        }
+        
+        // Parse id from params
+        const idStr = req.params.id;
+        if (!idStr) {
+            res.status(400).send();
+            return;
+        }
+
+        const id = parseInt(idStr);
+        const fetchedUser = await users.getUserById(id);
+        if (!fetchedUser) {
+            res.status(404).send("No user with specified ID");
+            return;
+        }
+
+        let result: ViewUserResponse = {
+            firstName: fetchedUser.first_name,
+            lastName: fetchedUser.last_name
+        };
+
+        // Add email to response if the user is viewing their own profile
+        if (loggedInUser.id == fetchedUser.id)
+            result["email"] = fetchedUser.email;
+
+        res.status(200).json(result);
+
     } catch (err) {
         Logger.error(err);
         res.status(500).send();
