@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import * as schemas from "../resources/schemas.json";
 import Logger from "../../config/logger";
-import { validate } from "../services/validator";
 import * as users from "../models/user.model";
-
+import * as schemas from "../resources/schemas.json";
+import * as passwords from "../services/passwords";
+import { validate } from "../services/validator";
 
 const register = async (req: Request, res: Response): Promise<void> => {
 
@@ -15,8 +15,8 @@ const register = async (req: Request, res: Response): Promise<void> => {
 
     const { email, password, firstName, lastName } = req.body;
     try {
-        const existingUser = await users.getUserByEmail(email);
-        if (existingUser) {
+        const emailInUse = await users.isEmailInUse(email);
+        if (emailInUse) {
             res.status(403).send("Email is already in use");
             return;
         }
@@ -98,7 +98,7 @@ const view = async (req: Request, res: Response): Promise<void> => {
             res.status(400).send();
             return;
         }
-        
+
         // Parse id from params
         const idStr = req.params.id;
         if (!idStr) {
@@ -130,13 +130,59 @@ const view = async (req: Request, res: Response): Promise<void> => {
     }
 };
 
-const update = async (req: Request, res: Response): Promise<void> => {
+const update = async (req: Request, res: Response): Promise<any> => {
     try {
-        res.status(501).send();
+        const validation = validate(schemas.user_edit, req.body);
+        if (!validation.valid)
+            return res.status(400).send(`Bad Request: ${validation.errorText}`);
+
+        const authToken = req.get("X-Authorization");
+        if (!authToken)
+            return res.status(400).send();
+
+        // Parse user id from params
+        const userId = parseInt(req.params.id);
+        if (!userId || isNaN(userId))
+            return res.status(400).send();
+
+        // Fetch user by id
+        const user = await users.getUserById(userId);
+        if (!user)
+            return res.status(404).send("");
+
+        // User with the given id does not match the auth token header
+        if (user.auth_token != authToken)
+            return res.status(403).send("Can not edit another user's information");
+
+        const { email, firstName, lastName, password, currentPassword } = req.body as { [key: string]: string | undefined };
+
+        // Confirm email is not already in use
+        if (email) {
+            const emailInUse = await users.isEmailInUse(email);
+            if (emailInUse)
+                return res.status(403).send("Email is already in use");
+        }
+
+        // TODO: Does we care if currentPassword is sent but password is not?
+        // currentPassword is only if password is sent, right?
+        if (password) {
+            if (!currentPassword)
+                return res.status(400).send("currentPassword must be supplied");
+
+            if (currentPassword == password)
+                return res.status(403).send("Identical current and new passwords");
+
+            const validPassword = await passwords.compare(currentPassword, user.password);
+            if (!validPassword)
+                return { statusCode: 401, message: "Unauthorized or Invalid currentPassword" };
+        }
+
+        await users.update(user, email, firstName, lastName, password);
+        res.status(200).send();
     } catch (err) {
         Logger.error(err);
         res.status(500).send();
     }
 };
 
-export { register, login, logout, view, update };
+export { login, logout, register, update, view };

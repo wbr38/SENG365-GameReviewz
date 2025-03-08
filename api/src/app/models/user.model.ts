@@ -5,7 +5,7 @@ import Logger from "../../config/logger";
 import { User } from "../interfaces/user.interface";
 import * as passwords from "../services/passwords";
 
-export async function getUserByEmail(email: string): Promise<User | null> {
+async function getUserByEmail(email: string): Promise<User | null> {
     Logger.info(`Fetching user ${email} from the database`);
     const conn = await getPool().getConnection();
     const query = "SELECT * from user where email = ?";
@@ -16,6 +16,11 @@ export async function getUserByEmail(email: string): Promise<User | null> {
         return rows[0] as User;
 
     return null;
+}
+
+export async function isEmailInUse(email: string): Promise<boolean> {
+    const fetchedUser = await getUserByEmail(email);
+    return !!fetchedUser;
 }
 
 export async function getUserById(id: number): Promise<User | null> {
@@ -98,4 +103,45 @@ export async function logout(
     await conn.query(query, [user.email]);
     await conn.release();
     return true;
+}
+
+export async function update(
+    user: User,
+    email?: string,
+    firstName?: string,
+    lastName?: string,
+    password?: string
+): Promise<void> {
+
+    const fields = [];
+    const values = [];
+
+    if (firstName) {
+        fields.push("first_name=?");
+        values.push(firstName);
+    }
+
+    if (lastName) {
+        fields.push("last_name=?");
+        values.push(lastName);
+    }
+
+    if (email) {
+        fields.push("email=?");
+        values.push(email);
+    }
+
+    if (password) {
+        const hashedPassword = await passwords.hash(password);
+        fields.push("password=?");
+        values.push(hashedPassword);
+    }
+
+    Logger.info(`Updating user ${user.email} in the database`);
+    const conn = await getPool().getConnection();
+
+    values.push(user.id);
+    const query = `UPDATE user SET ${fields.join(", ")} WHERE id = ?`;
+    await conn.query(query, values);
+    conn.release();
 }
