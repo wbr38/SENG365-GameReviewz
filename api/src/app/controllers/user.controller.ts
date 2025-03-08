@@ -84,21 +84,6 @@ interface ViewUserResponse {
 
 const view = async (req: Request, res: Response): Promise<void> => {
     try {
-        // TODO: Can you view other users while not being logged in at all?
-        // i.e. remove this if you don't need to be logged in
-        const authToken = req.get("X-Authorization");
-        if (!authToken) {
-            res.status(400).send();
-            return;
-        }
-
-        // Fetch user from auth header
-        const loggedInUser = await users.getUserByToken(authToken);
-        if (!loggedInUser) {
-            res.status(400).send();
-            return;
-        }
-
         // Parse id from params
         const idStr = req.params.id;
         if (!idStr) {
@@ -119,8 +104,12 @@ const view = async (req: Request, res: Response): Promise<void> => {
         };
 
         // Add email to response if the user is viewing their own profile
-        if (loggedInUser.id == fetchedUser.id)
-            result["email"] = fetchedUser.email;
+        const authToken = req.get("X-Authorization");
+        if (authToken) {
+            const loggedInUser = await users.getUserByToken(authToken);
+            if (loggedInUser?.id == fetchedUser.id)
+                result["email"] = fetchedUser.email;
+        }
 
         res.status(200).json(result);
 
