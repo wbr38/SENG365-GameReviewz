@@ -6,21 +6,17 @@ import * as users from "../models/user.model";
 
 const VALID_IMAGE_MIME_TYPES = ["image/png", "image/jpeg", "image/gif"];
 
-async function getImage(req: Request, res: Response): Promise<any> {
+async function getImage(req: Request, res: Response): Promise<Response> {
     try {
         // Parse id from params
         const idStr = req.params.id;
-        if (!idStr) {
-            res.status(400).send();
-            return;
-        }
+        if (!idStr)
+            return res.status(400).send();
 
         const id = parseInt(idStr);
         const user = await users.getUserById(id);
-        if (!user) {
-            res.status(404).send("No user with specified ID");
-            return;
-        }
+        if (!user)
+            return res.status(404).send("No user with specified ID");
 
         const imageFilename = user?.image_filename;
         if (!imageFilename)
@@ -41,7 +37,7 @@ async function getImage(req: Request, res: Response): Promise<any> {
     }
 }
 
-async function setImage(req: Request, res: Response): Promise<any> {
+async function setImage(req: Request, res: Response): Promise<Response> {
     try {
         const authToken = req.get("X-Authorization");
         if (!authToken) {
@@ -77,12 +73,11 @@ async function setImage(req: Request, res: Response): Promise<any> {
     }
 }
 
-async function deleteImage(req: Request, res: Response): Promise<any> {
+async function deleteImage(req: Request, res: Response): Promise<Response> {
     try {
         const authToken = req.get("X-Authorization");
-        if (!authToken) {
+        if (!authToken)
             return res.status(401).send();
-        }
 
         const id = parseInt(req.params.id);
         const user = await users.getUserById(id);
@@ -100,7 +95,7 @@ async function deleteImage(req: Request, res: Response): Promise<any> {
         return res.status(200).send("");
     } catch (err) {
         Logger.error(err);
-        res.status(500).send();
+        return res.status(500).send();
     }
 }
 
