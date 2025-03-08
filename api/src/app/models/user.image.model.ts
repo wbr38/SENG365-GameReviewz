@@ -1,7 +1,7 @@
 import fs from "mz/fs";
-import { User } from "../interfaces/user.interface";
 import Logger from "../../config/logger";
 import { getPool } from "../../config/db";
+import { DB_User } from "../interfaces/user.interface";
 
 const imageDirectory = "./storage/images/";
 
@@ -11,7 +11,7 @@ export async function readImage(filename: string): Promise<Buffer> {
     return image;
 }
 
-export async function setImage(user: User, image: Buffer, ext: string): Promise<void> {
+export async function setImage(user: DB_User, image: Buffer, ext: string): Promise<void> {
     // Write to disk
     const filename = `user_${user.id}.${ext}`;
     const filePath = imageDirectory + filename;
@@ -25,7 +25,7 @@ export async function setImage(user: User, image: Buffer, ext: string): Promise<
     conn.release();
 }
 
-export async function deleteImage(user: User): Promise<void> {
+export async function deleteImage(user: DB_User): Promise<void> {
     Logger.info(`Deleting image of user ${user.email}`);
 
     // Delete from disk

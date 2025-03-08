@@ -4,6 +4,7 @@ import * as users from "../models/user.model";
 import * as schemas from "../resources/schemas.json";
 import * as passwords from "../services/passwords";
 import { validate } from "../services/validator";
+import { API_User } from "../interfaces/user.interface";
 
 async function register(req: Request, res: Response): Promise<Response> {
     try {
@@ -62,13 +63,6 @@ async function logout(req: Request, res: Response): Promise<Response> {
     }
 }
 
-interface ViewUserResponse {
-    /** Only defined if the user is viewing their own profile */
-    email?: string;
-    firstName: string;
-    lastName: string;
-}
-
 async function view(req: Request, res: Response): Promise<Response> {
     try {
         // Parse id from params
@@ -77,7 +71,7 @@ async function view(req: Request, res: Response): Promise<Response> {
         if (!user)
             return res.status(404).send("No user with specified ID");
 
-        let result: ViewUserResponse = {
+        let result: API_User = {
             firstName: user.first_name,
             lastName: user.last_name
         };
@@ -87,7 +81,7 @@ async function view(req: Request, res: Response): Promise<Response> {
         if (authToken) {
             const loggedInUser = await users.getUserByToken(authToken);
             if (loggedInUser?.id == user.id)
-                result["email"] = user.email;
+                result.email = user.email;
         }
 
         return res.status(200).json(result);
