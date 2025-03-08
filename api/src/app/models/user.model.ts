@@ -10,7 +10,7 @@ async function getUserByEmail(email: string): Promise<User | null> {
     const conn = await getPool().getConnection();
     const query = "SELECT * from user where email = ?";
     const [rows] = await conn.query(query, [email]);
-    await conn.release();
+    conn.release();
 
     if (Array.isArray(rows) && rows.length > 0)
         return rows[0] as User;
@@ -28,7 +28,7 @@ export async function getUserById(id: number): Promise<User | null> {
     const conn = await getPool().getConnection();
     const query = "SELECT * from user where id = ?";
     const [rows] = await conn.query(query, [id]);
-    await conn.release();
+    conn.release();
 
     if (Array.isArray(rows) && rows.length > 0)
         return rows[0] as User;
@@ -42,7 +42,7 @@ export async function getUserByToken(authToken: string): Promise<User | null> {
     const conn = await getPool().getConnection();
     const query = "SELECT * from user where auth_token = ?";
     const [rows] = await conn.query(query, [authToken]);
-    await conn.release();
+    conn.release();
 
     if (Array.isArray(rows) && rows.length > 0)
         return rows[0] as User;
@@ -62,7 +62,7 @@ export async function insert(
     const conn = await getPool().getConnection();
     const query = "INSERT INTO user (email, first_name, last_name, password) values ( ?, ?, ?, ? )";
     const [result] = await conn.query(query, [email, firstName, lastName, hashedPassword]);
-    await conn.release();
+    conn.release();
     return result as ResultSetHeader;
 }
 
@@ -101,7 +101,7 @@ export async function logout(
     const conn = await getPool().getConnection();
     const query = "UPDATE user SET auth_token=null WHERE email = ?";
     await conn.query(query, [user.email]);
-    await conn.release();
+    conn.release();
     return true;
 }
 
