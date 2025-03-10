@@ -6,7 +6,7 @@ import * as passwords from "../services/passwords";
 import { validate } from "../services/validator";
 import { API_User } from "../interfaces/user.interface";
 
-async function register(req: Request, res: Response): Promise<Response> {
+export async function register(req: Request, res: Response): Promise<Response> {
     try {
         const validation = validate(schemas.user_register, req.body);
         if (!validation.valid)
@@ -26,7 +26,7 @@ async function register(req: Request, res: Response): Promise<Response> {
     }
 }
 
-async function login(req: Request, res: Response): Promise<Response> {
+export async function login(req: Request, res: Response): Promise<Response> {
     try {
         const validation = validate(schemas.user_login, req.body);
         if (!validation.valid)
@@ -44,7 +44,7 @@ async function login(req: Request, res: Response): Promise<Response> {
     }
 }
 
-async function logout(req: Request, res: Response): Promise<Response> {
+export async function logout(req: Request, res: Response): Promise<Response> {
     try {
         const authToken = req.get("X-Authorization");
 
@@ -63,7 +63,7 @@ async function logout(req: Request, res: Response): Promise<Response> {
     }
 }
 
-async function view(req: Request, res: Response): Promise<Response> {
+export async function view(req: Request, res: Response): Promise<Response> {
     try {
         // Parse id from params
         const userId = parseInt(req.params.id);
@@ -94,7 +94,7 @@ async function view(req: Request, res: Response): Promise<Response> {
     }
 }
 
-async function update(req: Request, res: Response): Promise<Response> {
+export async function update(req: Request, res: Response): Promise<Response> {
     try {
         const validation = validate(schemas.user_edit, req.body);
         if (!validation.valid)
@@ -148,5 +148,3 @@ async function update(req: Request, res: Response): Promise<Response> {
         return res.status(500).send();
     }
 }
-
-export { login, logout, register, update, view };

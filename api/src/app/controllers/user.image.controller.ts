@@ -6,7 +6,7 @@ import * as users from "../models/user.model";
 
 const VALID_IMAGE_MIME_TYPES = ["image/png", "image/jpeg", "image/gif"];
 
-async function getImage(req: Request, res: Response): Promise<Response> {
+export async function getImage(req: Request, res: Response): Promise<Response> {
     try {
         // Parse id from params
         const userId = parseInt(req.params.id);
@@ -36,7 +36,7 @@ async function getImage(req: Request, res: Response): Promise<Response> {
     }
 }
 
-async function setImage(req: Request, res: Response): Promise<Response> {
+export async function setImage(req: Request, res: Response): Promise<Response> {
     try {
         const authToken = req.get("X-Authorization");
         if (!authToken) {
@@ -75,7 +75,7 @@ async function setImage(req: Request, res: Response): Promise<Response> {
     }
 }
 
-async function deleteImage(req: Request, res: Response): Promise<Response> {
+export async function deleteImage(req: Request, res: Response): Promise<Response> {
     try {
         const authToken = req.get("X-Authorization");
         if (!authToken)
@@ -103,5 +103,3 @@ async function deleteImage(req: Request, res: Response): Promise<Response> {
         return res.status(500).send();
     }
 }
-
-export { deleteImage, getImage, setImage };

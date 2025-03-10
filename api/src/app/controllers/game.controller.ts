@@ -45,7 +45,7 @@ namespace ParamsUtil {
     }
 }
 
-async function getAllGames(req: Request, res: Response): Promise<Response> {
+export async function getAllGames(req: Request, res: Response): Promise<Response> {
 
     const parseBoolean = (x: string) => x == "true";
     const parseSortMethod = (sortMethod: keyof typeof GameSortMethod): GameSortMethod | undefined => {
@@ -138,7 +138,7 @@ async function getAllGames(req: Request, res: Response): Promise<Response> {
     }
 }
 
-async function getGame(req: Request, res: Response): Promise<Response> {
+export async function getGame(req: Request, res: Response): Promise<Response> {
     try {
         const gameId = parseInt(req.params.id);
         if (isNaN(gameId))
@@ -155,7 +155,7 @@ async function getGame(req: Request, res: Response): Promise<Response> {
     }
 }
 
-async function addGame(req: Request, res: Response): Promise<Response> {
+export async function addGame(req: Request, res: Response): Promise<Response> {
 
     try {
         const authToken = req.get("X-Authorization");
@@ -198,7 +198,7 @@ async function addGame(req: Request, res: Response): Promise<Response> {
     }
 }
 
-async function editGame(req: Request, res: Response): Promise<Response> {
+export async function editGame(req: Request, res: Response): Promise<Response> {
     try {
         return res.status(501).send();
     } catch (err) {
@@ -207,7 +207,7 @@ async function editGame(req: Request, res: Response): Promise<Response> {
     }
 }
 
-async function deleteGame(req: Request, res: Response): Promise<Response> {
+export async function deleteGame(req: Request, res: Response): Promise<Response> {
     try {
         return res.status(501).send();
     } catch (err) {
@@ -217,7 +217,7 @@ async function deleteGame(req: Request, res: Response): Promise<Response> {
 }
 
 
-async function getGenres(req: Request, res: Response): Promise<Response> {
+export async function getGenres(req: Request, res: Response): Promise<Response> {
     try {
         const genres = await games.getGenres();
         return res.status(200).json(genres);
@@ -227,7 +227,7 @@ async function getGenres(req: Request, res: Response): Promise<Response> {
     }
 }
 
-async function getPlatforms(_req: Request, res: Response): Promise<Response> {
+export async function getPlatforms(_req: Request, res: Response): Promise<Response> {
     try {
         const platforms = await games.getPlatforms();
         return res.status(200).json(platforms);
@@ -236,6 +236,3 @@ async function getPlatforms(_req: Request, res: Response): Promise<Response> {
         return res.status(500).send();
     }
 }
-
-
-export { addGame, deleteGame, editGame, getAllGames, getGame, getGenres, getPlatforms };
