@@ -66,8 +66,11 @@ async function logout(req: Request, res: Response): Promise<Response> {
 async function view(req: Request, res: Response): Promise<Response> {
     try {
         // Parse id from params
-        const id = parseInt(req.params.id);
-        const user = await users.getUserById(id);
+        const userId = parseInt(req.params.id);
+        if (isNaN(userId))
+            return res.status(400).send("id must be a number");
+
+        const user = await users.getUserById(userId);
         if (!user)
             return res.status(404).send("No user with specified ID");
 
@@ -103,7 +106,7 @@ async function update(req: Request, res: Response): Promise<Response> {
 
         // Parse user id from params
         const userId = parseInt(req.params.id);
-        if (!userId || isNaN(userId))
+        if (isNaN(userId))
             return res.status(400).send();
 
         // Fetch user by id

@@ -9,12 +9,11 @@ const VALID_IMAGE_MIME_TYPES = ["image/png", "image/jpeg", "image/gif"];
 async function getImage(req: Request, res: Response): Promise<Response> {
     try {
         // Parse id from params
-        const idStr = req.params.id;
-        if (!idStr)
-            return res.status(400).send();
+        const userId = parseInt(req.params.id);
+        if (isNaN(userId))
+            return res.status(400).send("id must be a number");
 
-        const id = parseInt(idStr);
-        const user = await users.getUserById(id);
+        const user = await users.getUserById(userId);
         if (!user)
             return res.status(404).send("No user with specified ID");
 
@@ -44,8 +43,11 @@ async function setImage(req: Request, res: Response): Promise<Response> {
             return res.status(401).send();
         }
 
-        const id = parseInt(req.params.id);
-        const user = await users.getUserById(id);
+        const userId = parseInt(req.params.id);
+        if (isNaN(userId))
+            return res.status(400).send("id must be a number");
+
+        const user = await users.getUserById(userId);
         if (!user)
             return res.status(404).send("No such user with ID given");
 
@@ -79,8 +81,11 @@ async function deleteImage(req: Request, res: Response): Promise<Response> {
         if (!authToken)
             return res.status(401).send();
 
-        const id = parseInt(req.params.id);
-        const user = await users.getUserById(id);
+        const userId = parseInt(req.params.id);
+        if (isNaN(userId))
+            return res.status(400).send("id must be a number");
+
+        const user = await users.getUserById(userId);
         if (!user)
             return res.status(404).send("No such user with ID given");
 
