@@ -75,7 +75,7 @@ export async function getGameByTitle(title: string): Promise<DB_Game | null> {
     return null;
 }
 
-export async function getGame(gameId: number) {
+export async function getGameById(gameId: number) {
     const query = `
     SELECT
         game.*,

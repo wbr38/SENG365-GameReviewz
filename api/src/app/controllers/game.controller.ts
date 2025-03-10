@@ -144,7 +144,7 @@ async function getGame(req: Request, res: Response): Promise<Response> {
         if (isNaN(gameId))
             return res.status(400).send("id must be a number");
 
-        const game = await games.getGame(gameId);
+        const game = await games.getGameById(gameId);
         if (!game)
             return res.status(404).send("No game with id");
 
