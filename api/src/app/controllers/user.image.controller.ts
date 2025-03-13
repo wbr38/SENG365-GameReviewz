@@ -1,10 +1,8 @@
 import { Request, Response } from "express";
-import mime from "mime-types";
 import Logger from "../../config/logger";
 import * as userImages from "../models/user.image.model";
 import * as users from "../models/user.model";
-
-const VALID_IMAGE_MIME_TYPES = ["image/png", "image/jpeg", "image/gif"];
+import * as storage from "../services/storage";
 
 export async function getImage(req: Request, res: Response): Promise<Response> {
     try {
@@ -21,13 +19,13 @@ export async function getImage(req: Request, res: Response): Promise<Response> {
         if (!imageFilename)
             return res.status(404).send("User has no profile image");
 
-        const mimeType = mime.lookup(imageFilename);
-        if (!mimeType || !VALID_IMAGE_MIME_TYPES.includes(mimeType)) {
+        const mimeType = storage.getImageMimeType(imageFilename);
+        if (!mimeType) {
             Logger.error(`User ${user.email} contains non-image profile picture: ${imageFilename}`);
             return res.status(500).send();
         }
 
-        const image = await userImages.readImage(imageFilename);
+        const image = await storage.readImage(imageFilename);
         res.setHeader("Content-Type", mimeType);
         return res.status(200).send(image);
     } catch (err) {
@@ -55,7 +53,7 @@ export async function setImage(req: Request, res: Response): Promise<Response> {
             return res.status(403).send("Can not change another user's profile photo");
 
         const contentType = req.header("Content-Type");
-        if (!contentType || !VALID_IMAGE_MIME_TYPES.includes(contentType))
+        if (!contentType || !storage.isValidImageType(contentType))
             return res.status(400).send("Invalid image supplied (possibly incorrect file type)");
 
         // "image/png" -> "png"
