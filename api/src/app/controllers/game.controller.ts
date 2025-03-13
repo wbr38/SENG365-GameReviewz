@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { ParsedQs } from "qs";
 import Logger from "../../config/logger";
-import { PostGame } from "../interfaces/game.interface";
+import { API_Game, PostGame } from "../interfaces/game.interface";
 import { DB_User } from "../interfaces/user.interface";
 import * as games from "../models/game.model";
 import { GameSortMethod } from "../models/game.model";
@@ -117,7 +117,7 @@ export async function getAllGames(req: Request, res: Response): Promise<Response
             wishlistedByUser = user;
         }
 
-        const result = await games.getGames(
+        const gamesResult = await games.getGames(
             startIndex,
             count,
             q,
@@ -130,6 +130,29 @@ export async function getAllGames(req: Request, res: Response): Promise<Response
             ownedByUser,
             wishlistedByUser
         );
+
+        type APIResult = {
+            games: API_Game[],
+            count: number
+        };
+
+        const result: APIResult = {
+            games: gamesResult.games.map(game => {
+                return {
+                    gameId: game.id,
+                    title: game.title,
+                    genreId: game.genre_id,
+                    creatorId: game.creator_id,
+                    creatorFirstName: game.first_name,
+                    creatorLastName: game.last_name,
+                    price: game.price,
+                    rating: game.avg_rating ? parseFloat(game.avg_rating) : 0,
+                    platformIds: game.platform_ids?.split(",").map(x => parseInt(x)) ?? [],
+                    creationDate: game.creation_date
+                };
+            }),
+            count: gamesResult.count
+        }
 
         return res.status(200).json(result);
     } catch (err) {
@@ -148,7 +171,29 @@ export async function getGame(req: Request, res: Response): Promise<Response> {
         if (!game)
             return res.status(404).send("No game with id");
 
-        return res.status(200).json(game);
+        type APIResult = API_Game & {
+            description: string,
+            numberOfOwners: number,
+            numberOfWishlists: number,
+        };
+
+        const response: APIResult = {
+            gameId: game.id,
+            title: game.title,
+            description: game.description,
+            genreId: game.genre_id,
+            creationDate: game.creation_date,
+            creatorId: game.creator_id,
+            price: game.price,
+            creatorFirstName: game.first_name,
+            creatorLastName: game.last_name,
+            rating: game.avg_rating ? parseFloat(game.avg_rating) : 0,
+            platformIds: game.platform_ids?.split(",").map(x => parseInt(x)) ?? [],
+            numberOfOwners: game.number_of_owners,
+            numberOfWishlists: game.number_of_wishlists,
+        };
+
+        return res.status(200).json(response);
     } catch (err) {
         Logger.error(err);
         return res.status(500).send();

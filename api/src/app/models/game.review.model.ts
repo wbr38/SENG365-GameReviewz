@@ -1,6 +1,6 @@
 import { getPool } from "../../config/db";
 import { DB_Game } from "../interfaces/game.interface";
-import { API_GameReview, DB_GameReview } from "../interfaces/game.review.interface";
+import { DB_GameReview } from "../interfaces/game.review.interface";
 import { DB_User } from "../interfaces/user.interface";
 
 export async function reviewExists(userId: number, gameId: number): Promise<boolean> {
@@ -18,7 +18,7 @@ export async function reviewExists(userId: number, gameId: number): Promise<bool
     return rows.length > 0;
 }
 
-export async function getReviews(gameId: number): Promise<API_GameReview[]> {
+export async function getReviews(gameId: number) {
 
     const query = `
     SELECT 
@@ -36,20 +36,7 @@ export async function getReviews(gameId: number): Promise<API_GameReview[]> {
 
     type DBResult = DB_GameReview & Pick<DB_User, "first_name" | "last_name">;
     const rows = queryResult[0] as DBResult[];
-
-    const result: API_GameReview[] = rows.map(row => {
-        const review: API_GameReview = {
-            reviewerId: row.user_id,
-            rating: row.rating,
-            review: row.review,
-            reviewerFirstName: row.first_name,
-            reviewerLastName: row.last_name,
-            timestamp: row.timestamp
-        };
-        return review;
-    });
-
-    return result;
+    return rows;
 }
 
 export async function createReview(

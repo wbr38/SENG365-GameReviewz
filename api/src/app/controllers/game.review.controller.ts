@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import Logger from "../../config/logger";
+import { API_GameReview } from "../interfaces/game.review.interface";
 import * as games from "../models/game.model";
 import * as reviews from "../models/game.review.model";
 import * as users from "../models/user.model";
@@ -16,7 +17,18 @@ export async function getGameReviews(req: Request, res: Response): Promise<Respo
         if (result.length == 0)
             return res.status(404).send("No game found with id");
 
-        return res.status(200).json(result);
+        const response: API_GameReview[] = result.map(review => {
+            return {
+                reviewerId: review.user_id,
+                rating: review.rating,
+                review: review.review,
+                reviewerFirstName: review.first_name,
+                reviewerLastName: review.last_name,
+                timestamp: review.timestamp
+            };
+        });
+
+        return res.status(200).json(response);
     } catch (err) {
         Logger.error(err);
         return res.status(500).send();
@@ -46,7 +58,7 @@ export async function addGameReview(req: Request, res: Response): Promise<Respon
         if (!game)
             return res.status(404).send("No game found with id");
 
-        if (game.creatorId == user.id)
+        if (game.creator_id == user.id)
             return res.status(403).send("Cannot review your own game");
 
         const existingReview = await reviews.reviewExists(user.id, gameId);

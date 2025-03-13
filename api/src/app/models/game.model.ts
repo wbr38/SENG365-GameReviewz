@@ -1,6 +1,6 @@
 import { ResultSetHeader } from "mysql2";
 import { getPool } from "../../config/db";
-import { API_Game, DB_Game, PostGame } from "../interfaces/game.interface";
+import { DB_Game, PostGame } from "../interfaces/game.interface";
 import { DB_User } from "../interfaces/user.interface";
 
 export enum GameSortMethod {
@@ -92,6 +92,10 @@ export async function getGameById(gameId: number) {
     GROUP BY game.id;
     `;
 
+    const conn = await getPool().getConnection();
+    const queryResult = await conn.query(query, [gameId]);
+    conn.release();
+
     type DBResult = DB_Game & Pick<DB_User, "first_name" | "last_name"> & {
         number_of_owners: number,
         number_of_wishlists: number,
@@ -99,39 +103,11 @@ export async function getGameById(gameId: number) {
         avg_rating?: string
     };
 
-    const conn = await getPool().getConnection();
-    const queryResult = await conn.query(query, [gameId]);
-    conn.release();
-
     const rows = queryResult[0] as DBResult[];
     if (rows.length == 0)
         return null;
 
-    const row = rows[0];
-
-    type APIResponse = API_Game & {
-        description: string;
-        numberOfOwners: number;
-        numberOfWishlists: number;
-    };
-
-    const result: APIResponse = {
-        gameId: row.id,
-        title: row.title,
-        description: row.description,
-        genreId: row.genre_id,
-        creationDate: row.creation_date,
-        creatorId: row.creator_id,
-        price: row.price,
-        creatorFirstName: row.first_name,
-        creatorLastName: row.last_name,
-        rating: row.avg_rating ? parseFloat(row.avg_rating) : 0,
-        platformIds: row.platform_ids?.split(",").map(x => parseInt(x)) ?? [],
-        numberOfOwners: row.number_of_owners,
-        numberOfWishlists: row.number_of_wishlists
-    };
-
-    return result;
+    return rows[0];
 }
 
 export async function getGames(
@@ -146,8 +122,7 @@ export async function getGames(
     sortBy?: GameSortMethod,
     ownedByUser?: DB_User,
     wishlistedByUser?: DB_User,
-): Promise<{ games: API_Game[]; count: number; }> {
-
+) {
     const values: any[] = [];
     let query = `
         SELECT 
@@ -214,7 +189,7 @@ export async function getGames(
     query += sortingMap[sortBy];
 
     const conn = await getPool().getConnection();
-    const [rows] = await conn.query(query, values);
+    const queryResult = await conn.query(query, values);
     conn.release();
 
     type DBResult = DB_Game & Pick<DB_User, "first_name" | "last_name"> & {
@@ -222,28 +197,12 @@ export async function getGames(
         platform_ids?: string;
     };
 
-    let result = rows as DBResult[];
-    const gamesCount = result.length;
+    let rows = queryResult[0] as DBResult[];
+    const gamesCount = rows.length;
 
     startIndex ??= 0;
-    count ??= result.length;
-    result = result.slice(startIndex, startIndex + count);
-
-    const games = result.map(row => {
-        const apiGame: API_Game = {
-            gameId: row.id,
-            title: row.title,
-            genreId: row.genre_id,
-            creatorId: row.creator_id,
-            creatorFirstName: row.first_name,
-            creatorLastName: row.last_name,
-            price: row.price,
-            rating: row.avg_rating ? parseFloat(row.avg_rating) : 0,
-            platformIds: row.platform_ids?.split(",").map(x => parseInt(x)) ?? [],
-            creationDate: row.creation_date
-        };
-        return apiGame;
-    });
+    count ??= rows.length; // if count isn't set include all ros
+    const games = rows.slice(startIndex, startIndex + count);
 
     return {
         games,
