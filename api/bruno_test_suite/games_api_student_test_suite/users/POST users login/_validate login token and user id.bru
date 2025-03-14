@@ -1,0 +1,23 @@
+meta {
+  name: _validate login token and user id
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{BASE_URL}}/executeSql
+  body: text
+  auth: none
+}
+
+body:text {
+  SELECT auth_token FROM user WHERE user.id = {{user_id}};
+}
+
+tests {
+  test("Auth Token", function () {
+    const authToken = bru.getGlobalEnvVar("auth_token"); 
+    const bodyToken = res.getBody()[0]["auth_token"];
+    expect(bodyToken).to.equal(authToken);
+  });
+}

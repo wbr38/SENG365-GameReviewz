@@ -84,9 +84,18 @@ export async function login(
         return false;
 
     const AUTH_TOKEN_LENGTH = 16;
+    const authToken = randtoken.generate(AUTH_TOKEN_LENGTH);
+
+    // Update DB
+    Logger.info(`User ${user.email} logged in, updating authToken in database`);
+    const conn = await getPool().getConnection();
+    const query = "UPDATE user SET auth_token=? WHERE id=?";
+    await conn.query(query, [authToken, user.id]);
+    conn.release();
+
     return {
         userId: user.id,
-        token: randtoken.generate(AUTH_TOKEN_LENGTH)
+        token: authToken
     };
 }
 
