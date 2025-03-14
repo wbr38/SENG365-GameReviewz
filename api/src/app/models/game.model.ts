@@ -127,11 +127,11 @@ export async function getGames(
     let query = `
         SELECT 
             game.*, 
-            AVG(game_review.rating) AS avg_rating,
-            GROUP_CONCAT(DISTINCT game_platforms.platform_id ORDER BY game_platforms.platform_id ASC) as platform_ids,
-            user.first_name, user.last_name
+            (SELECT AVG(gr.rating) FROM game_review AS gr WHERE gr.game_id = game.id) as avg_rating,
+            (SELECT GROUP_CONCAT(DISTINCT gp.platform_id ORDER BY gp.platform_id ASC) FROM game_platforms AS gp WHERE gp.game_id = game.id) as platform_ids,
+            creator.first_name, creator.last_name
         FROM game
-        JOIN user ON user.id = game.creator_id
+        JOIN user AS creator ON creator.id = game.creator_id
         LEFT JOIN game_review ON game_review.game_id = game.id
         LEFT JOIN game_platforms ON game_platforms.game_id = game.id
     `;
@@ -159,7 +159,7 @@ export async function getGames(
     }
 
     if (reviewerId != undefined) {
-        query += " AND game_review.user_id <= ?";
+        query += " AND game_review.user_id = ?";
         values.push(reviewerId);
     }
 
@@ -173,7 +173,7 @@ export async function getGames(
         values.push(platformIds);
     }
 
-    query += " GROUP BY game.id, user.id";
+    query += " GROUP BY game.id";
 
     sortBy ??= GameSortMethod.CREATED_ASC;
     const sortingMap: { [key in GameSortMethod]: string } = {
