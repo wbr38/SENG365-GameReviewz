@@ -10,7 +10,7 @@ export async function setImage(gameId: number, image: Buffer, ext: string): Prom
     // Update DB
     Logger.info(`Setting game #${gameId} image to ${filename}`);
     const conn = await getPool().getConnection();
-    const query = "UPDATE game SET image_filename = ? WHERE game.id = ?";
+    const query = "UPDATE game SET game.image_filename = ? WHERE game.id = ?";
     await conn.query(query, [filename, gameId]);
     conn.release();
 }

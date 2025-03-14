@@ -26,7 +26,7 @@ export async function getReviews(gameId: number) {
         user.first_name, user.last_name
     FROM game_review
     JOIN user ON user.id = game_review.user_id
-    WHERE game_id = ?
+    WHERE game_review.game_id = ?
     ORDER BY game_review.timestamp DESC
     `;
 

@@ -8,7 +8,7 @@ import { DB_User } from "../interfaces/user.interface";
 async function getUserByEmail(email: string): Promise<DB_User | null> {
     Logger.info(`Fetching user ${email} from the database`);
     const conn = await getPool().getConnection();
-    const query = "SELECT * from user where email = ?";
+    const query = "SELECT * from user WHERE user.email = ?";
     const [rows] = await conn.query(query, [email]);
     conn.release();
 
@@ -26,7 +26,7 @@ export async function isEmailInUse(email: string): Promise<boolean> {
 export async function getUserById(id: number): Promise<DB_User | null> {
     Logger.info(`Fetching user with id #${id} from the database`);
     const conn = await getPool().getConnection();
-    const query = "SELECT * from user where id = ?";
+    const query = "SELECT * FROM user WHERE user.id = ?";
     const [rows] = await conn.query(query, [id]);
     conn.release();
 
@@ -40,7 +40,7 @@ export async function getUserByToken(authToken: string): Promise<DB_User | null>
     // Probably a bad idea to log auth tokens
     // Logger.info(`Getting user ${email} from the database`);
     const conn = await getPool().getConnection();
-    const query = "SELECT * from user where auth_token = ?";
+    const query = "SELECT * FROM user WHERE user.auth_token = ?";
     const [rows] = await conn.query(query, [authToken]);
     conn.release();
 
@@ -89,7 +89,7 @@ export async function login(
     // Update DB
     Logger.info(`User ${user.email} logged in, updating authToken in database`);
     const conn = await getPool().getConnection();
-    const query = "UPDATE user SET auth_token=? WHERE id=?";
+    const query = "UPDATE user SET user.auth_token=? WHERE user.id=?";
     await conn.query(query, [authToken, user.id]);
     conn.release();
 
@@ -108,8 +108,8 @@ export async function logout(
 
     Logger.info(`Logging out user ${user.email} from the database`);
     const conn = await getPool().getConnection();
-    const query = "UPDATE user SET auth_token=null WHERE email = ?";
-    await conn.query(query, [user.email]);
+    const query = "UPDATE user SET user.auth_token=null WHERE user.id = ?";
+    await conn.query(query, [user.id]);
     conn.release();
     return true;
 }
@@ -150,7 +150,7 @@ export async function update(
     const conn = await getPool().getConnection();
 
     values.push(user.id);
-    const query = `UPDATE user SET ${fields.join(", ")} WHERE id = ?`;
+    const query = `UPDATE user SET ${fields.join(", ")} WHERE user.id = ?`;
     await conn.query(query, values);
     conn.release();
 }

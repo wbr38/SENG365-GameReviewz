@@ -11,7 +11,7 @@ export async function setImage(user: DB_User, image: Buffer, ext: string): Promi
     // Update DB
     Logger.info(`Setting user ${user.email} image to ${filename}`);
     const conn = await getPool().getConnection();
-    const query = "UPDATE user SET image_filename = ? WHERE user.id = ?";
+    const query = "UPDATE user SET user.image_filename = ? WHERE user.id = ?";
     await conn.query(query, [filename, user.id]);
     conn.release();
 }
@@ -25,7 +25,7 @@ export async function deleteImage(user: DB_User): Promise<void> {
 
     // Update DB
     const conn = await getPool().getConnection();
-    const query = "UPDATE user SET image_filename = NULL WHERE user.id = ?";
+    const query = "UPDATE user SET user.image_filename = NULL WHERE user.id = ?";
     await conn.query(query, [user.id]);
     conn.release();
 }

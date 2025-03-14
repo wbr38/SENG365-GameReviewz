@@ -2,7 +2,7 @@ import { ResultSetHeader } from "mysql2";
 import { getPool } from "../../config/db";
 
 export async function isGameWishlisted(userId: number, gameId: number): Promise<boolean> {
-    const query = "SELECT EXISTS(SELECT * FROM wishlist WHERE user_id = ? AND game_id = ?) as gameWishlisted";
+    const query = "SELECT EXISTS(SELECT * FROM wishlist WHERE wishlist.user_id = ? AND wishlist.game_id = ?) as gameWishlisted";
 
     const conn = await getPool().getConnection();
     const queryResult = await conn.query(query, [userId, gameId]);
@@ -22,7 +22,7 @@ export async function addGameToWishlist(userId: number, gameId: number): Promise
 }
 
 export async function removeGameFromWishlist(userId: number, gameId: number): Promise<boolean> {
-    const query = "DELETE FROM wishlist WHERE user_id = ? AND game_id = ?";
+    const query = "DELETE FROM wishlist WHERE wishlist.user_id = ? AND wishlist.game_id = ?";
     const conn = await getPool().getConnection();
     const queryResult = await conn.query<ResultSetHeader>(query, [userId, gameId]);
     conn.release();
@@ -40,7 +40,7 @@ export async function addGameToOwned(userId: number, gameId: number): Promise<vo
 }
 
 export async function removeGameFromOwned(userId: number, gameId: number): Promise<boolean> {
-    const query = "DELETE FROM owned WHERE user_id = ? AND game_id = ?";
+    const query = "DELETE FROM owned WHERE owned.user_id = ? AND owned.game_id = ?";
     const conn = await getPool().getConnection();
     const queryResult = await conn.query<ResultSetHeader>(query, [userId, gameId]);
     conn.release();
@@ -50,7 +50,7 @@ export async function removeGameFromOwned(userId: number, gameId: number): Promi
 }
 
 export async function isGameOwned(userId: number, gameId: number): Promise<boolean> {
-    const query = "SELECT EXISTS(SELECT * FROM owned WHERE user_id = ? AND game_id = ?) AS gameOwned";
+    const query = "SELECT EXISTS(SELECT * FROM owned WHERE owned.user_id = ? AND owned.game_id = ?) AS gameOwned";
 
     const conn = await getPool().getConnection();
     const queryResult = await conn.query(query, [userId, gameId]);
