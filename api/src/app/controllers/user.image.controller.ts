@@ -47,7 +47,7 @@ export async function setImage(req: Request, res: Response): Promise<Response> {
 
         const user = await users.getUserById(userId);
         if (!user)
-            return res.status(404).send("No such user with ID given");
+            return res.status(403).send("No such user with ID given");
 
         if (user.auth_token != authToken)
             return res.status(403).send("Can not change another user's profile photo");
@@ -85,7 +85,7 @@ export async function deleteImage(req: Request, res: Response): Promise<Response
 
         const user = await users.getUserById(userId);
         if (!user)
-            return res.status(404).send("No such user with ID given");
+            return res.status(403).send("No such user with ID given");
 
         if (user.auth_token != authToken)
             return res.status(403).send("Can not delete another user's profile photo");

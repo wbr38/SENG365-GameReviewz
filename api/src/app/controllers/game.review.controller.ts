@@ -20,10 +20,10 @@ export async function getGameReviews(req: Request, res: Response): Promise<Respo
         const response: API_GameReview[] = result.map(review => {
             return {
                 reviewerId: review.user_id,
-                rating: review.rating,
-                review: review.review,
                 reviewerFirstName: review.first_name,
                 reviewerLastName: review.last_name,
+                rating: review.rating,
+                review: review.review,
                 timestamp: review.timestamp
             };
         });

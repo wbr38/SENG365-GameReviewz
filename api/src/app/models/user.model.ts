@@ -137,7 +137,7 @@ export async function update(
         values.push(hashedPassword);
     }
 
-    Logger.info(`Updating user ${user.email} in the database`);
+    Logger.info(`Updating user #${user.id} in the database`);
     const conn = await getPool().getConnection();
 
     values.push(user.id);

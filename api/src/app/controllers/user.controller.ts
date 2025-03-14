@@ -127,8 +127,6 @@ export async function update(req: Request, res: Response): Promise<Response> {
                 return res.status(403).send("Email is already in use");
         }
 
-        // TODO: Does we care if currentPassword is sent but password is not?
-        // currentPassword is only if password is sent, right?
         if (password) {
             if (!currentPassword)
                 return res.status(400).send("currentPassword must be supplied");

@@ -142,13 +142,13 @@ export async function getAllGames(req: Request, res: Response): Promise<Response
                     gameId: game.id,
                     title: game.title,
                     genreId: game.genre_id,
+                    creationDate: game.creation_date,
                     creatorId: game.creator_id,
+                    price: game.price,
                     creatorFirstName: game.first_name,
                     creatorLastName: game.last_name,
-                    price: game.price,
                     rating: game.avg_rating ? parseFloat(game.avg_rating) : 0,
                     platformIds: game.platform_ids?.split(",").map(x => parseInt(x)) ?? [],
-                    creationDate: game.creation_date
                 };
             }),
             count: gamesResult.count
@@ -173,8 +173,8 @@ export async function getGame(req: Request, res: Response): Promise<Response> {
 
         type APIResult = API_Game & {
             description: string,
-            numberOfOwners: number,
             numberOfWishlists: number,
+            numberOfOwners: number,
         };
 
         const response: APIResult = {
@@ -189,8 +189,8 @@ export async function getGame(req: Request, res: Response): Promise<Response> {
             creatorLastName: game.last_name,
             rating: game.avg_rating ? parseFloat(game.avg_rating) : 0,
             platformIds: game.platform_ids?.split(",").map(x => parseInt(x)) ?? [],
-            numberOfOwners: game.number_of_owners,
             numberOfWishlists: game.number_of_wishlists,
+            numberOfOwners: game.number_of_owners,
         };
 
         return res.status(200).json(response);
