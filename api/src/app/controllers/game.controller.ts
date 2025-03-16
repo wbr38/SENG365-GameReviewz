@@ -238,7 +238,7 @@ export async function addGame(req: Request, res: Response): Promise<Response> {
 
         const result = await games.addGame(user, body);
         if (!result)
-            return res.status(400).json();
+            return res.status(500).send();
 
         return res.status(201).json(result);
     } catch (err) {
