@@ -236,6 +236,9 @@ export async function addGame(req: Request, res: Response): Promise<Response> {
             return res.status(403).send("Game title already exists");
 
         const result = await games.addGame(user, body);
+        if (!result)
+            return res.status(400).json();
+
         return res.status(201).json(result);
     } catch (err) {
         Logger.error(err);
@@ -245,7 +248,38 @@ export async function addGame(req: Request, res: Response): Promise<Response> {
 
 export async function editGame(req: Request, res: Response): Promise<Response> {
     try {
-        return res.status(501).send();
+        const authToken = req.get("X-Authorization");
+        if (!authToken)
+            return res.status(401).send();
+
+        const user = await users.getUserByToken(authToken);
+        if (!user)
+            return res.status(401).send();
+
+        const gameId = parseInt(req.params.id);
+        if (isNaN(gameId))
+            return res.status(400).send("id must be a number");
+
+        const validation = validate(schemas.game_post, req.body);
+        if (!validation.valid)
+            return res.status(400).send(`Bad Request: ${validation.errorText}`);
+
+        const game = await games.getGameById(gameId);
+        if (!game)
+            return res.status(404).send("No game found with id");
+
+        if (game.creator_id != user.id)
+            return res.status(403).send("Only the creator of a game may change it");
+
+        const { title, description, price, platformIds, genreId } = req.body;
+
+        const existingGame = await games.getGameByTitle(title);
+        if (existingGame)
+            return res.status(403).send("Game title already exists");
+
+        const success = await games.editGame(game.id, title, description, price, platformIds, genreId);
+        const statusCode = success ? 200 : 400;
+        return res.status(statusCode).send();
     } catch (err) {
         Logger.error(err);
         return res.status(500).send();

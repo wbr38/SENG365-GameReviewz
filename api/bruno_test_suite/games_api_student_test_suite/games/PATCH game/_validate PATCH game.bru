@@ -1,0 +1,38 @@
+meta {
+  name: _validate PATCH game
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{BASE_URL}}/games/1
+  body: none
+  auth: none
+}
+
+tests {
+  var expectedData = {
+      "title": "Echoes of Aetheria",
+      "description": "Echoes of Aetheria is an epic open-world RPG set in a fractured realm where the fabric of reality is unraveling. Players take on the role of a 'Sundered', a powerful being caught between the worlds of the living and the spectral Aether...",
+      "genreId": 1,
+      "price": 100,
+      "platformIds": [
+          1
+      ]
+  };
+    
+  try {
+      var game = res.getBody();
+      for (const [key, value] of Object.entries(expectedData)) {
+          test(`Check ${key}=${value}`, () => {
+              if (Array.isArray(value))
+                  expect(game[key]).to.be.an("array").and.to.have.ordered.members(value);
+              else
+                  expect(game[key]).to.equal(value);
+          });
+      }
+  } catch (err) {
+      console.log(err);
+      expect.fail("Incorrect game data");
+  }
+}

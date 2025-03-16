@@ -1,0 +1,33 @@
+meta {
+  name: PATCH game -invalid game not foud
+  type: http
+  seq: 9
+}
+
+patch {
+  url: {{BASE_URL}}/games/999999999999
+  body: json
+  auth: none
+}
+
+headers {
+  X-Authorization: token
+}
+
+body:json {
+  {
+    "title": "Farm Life123",
+    "description": "decsription",
+    "genreId": 1,
+    "price": 100,
+    "platformIds": [
+      1
+    ]
+  }
+}
+
+tests {
+  test("Status code is 404", function () {
+      expect(res.getStatus()).to.equal(404);
+  });
+}

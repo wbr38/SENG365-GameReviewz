@@ -1,5 +1,4 @@
-import { ResultSetHeader } from "mysql2";
-import { PoolConnection } from "mysql2/promise";
+import { PoolConnection, ResultSetHeader } from "mysql2/promise";
 import { getPool } from "../../config/db";
 import Logger from "../../config/logger";
 import { DB_Game, PostGame } from "../interfaces/game.interface";
@@ -230,8 +229,7 @@ async function addPlatforms(db: PoolConnection, gameId: number, platforms: numbe
 export async function addGame(user: DB_User, postGame: PostGame) {
 
     const conn = await getPool().getConnection();
-    try 
-    {
+    try {
         await conn.beginTransaction();
 
         const sql = `
@@ -257,6 +255,42 @@ export async function addGame(user: DB_User, postGame: PostGame) {
         return {
             gameId: result.insertId
         };
+    } catch (err) {
+        await conn.rollback();
+        Logger.error(err);
+        return false;
+    } finally {
+        conn.release();
+    }
+}
+
+export async function editGame(
+    gameId: number,
+    title: string,
+    description: string,
+    price: number,
+    platformIds: number[],
+    genreId: number
+): Promise<boolean> {
+    const conn = await getPool().getConnection();
+    try {
+        await conn.beginTransaction();
+
+        // Delete existing game_platforms
+        await conn.query(
+            "DELETE FROM game_platforms WHERE game_platforms.game_id = ?",
+            [platformIds]
+        );
+        await addPlatforms(conn, gameId, platformIds);
+
+        // Update game
+        await conn.query(
+            "UPDATE game SET game.title = ?, game.description = ?, game.price = ?, game.genre_id = ? WHERE game.id = ?",
+            [title, description, price, genreId, gameId]
+        );
+
+        await conn.commit();
+        return true;
     } catch (err) {
         await conn.rollback();
         Logger.error(err);

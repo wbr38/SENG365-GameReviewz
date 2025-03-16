@@ -1,0 +1,33 @@
+meta {
+  name: PATCH game -invalid duplicate title
+  type: http
+  seq: 8
+}
+
+patch {
+  url: {{BASE_URL}}/games/1
+  body: json
+  auth: none
+}
+
+headers {
+  X-Authorization: token
+}
+
+body:json {
+  {
+    "title": "Farm Life",
+    "description": "decsription",
+    "genreId": 1,
+    "price": 100,
+    "platformIds": [
+      1
+    ]
+  }
+}
+
+tests {
+  test("Status code is 403", function () {
+      expect(res.getStatus()).to.equal(403);
+  });
+}

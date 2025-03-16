@@ -1,0 +1,33 @@
+meta {
+  name: PATCH game -invalid auth
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{BASE_URL}}/games/1
+  body: json
+  auth: none
+}
+
+headers {
+  ~X-Authorization: token
+}
+
+body:json {
+  {
+    "title": "Echoes of Aetheria",
+    "description": "Echoes of Aetheria is an epic open-world RPG set in a fractured realm where the fabric of reality is unraveling. Players take on the role of a 'Sundered', a powerful being caught between the worlds of the living and the spectral Aether...",
+    "genreId": 1,
+  //   "price": 100,
+    "platformIds": [
+      1
+    ]
+  }
+}
+
+tests {
+  test("Status code is 401", function () {
+      expect(res.getStatus()).to.equal(401);
+  });
+}
