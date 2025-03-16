@@ -1,5 +1,7 @@
 import { ResultSetHeader } from "mysql2";
+import { PoolConnection } from "mysql2/promise";
 import { getPool } from "../../config/db";
+import Logger from "../../config/logger";
 import { DB_Game, PostGame } from "../interfaces/game.interface";
 import { DB_User } from "../interfaces/user.interface";
 
@@ -210,7 +212,7 @@ export async function getGames(
     };
 }
 
-async function addPlatforms(gameId: number, platforms: number[]): Promise<ResultSetHeader> {
+async function addPlatforms(db: PoolConnection, gameId: number, platforms: number[]): Promise<ResultSetHeader> {
 
     // For each platformId add (game_id, platform_id)
     const valueStr = platforms.map(x => "(?, ?)").join(", ");
@@ -221,35 +223,45 @@ async function addPlatforms(gameId: number, platforms: number[]): Promise<Result
     VALUES ${valueStr}
     `;
 
-    const conn = await getPool().getConnection();
-    const [result] = await conn.query<ResultSetHeader>(query, values);
-    conn.release();
+    const [result] = await db.query<ResultSetHeader>(query, values);
     return result;
 }
 
 export async function addGame(user: DB_User, postGame: PostGame) {
 
-    const query = `
-    INSERT INTO game (title, description, creation_date, creator_id, genre_id, price)
-    VALUES (?, ?, NOW(), ?, ?, ?);
-    `;
-
-    const values = [
-        postGame.title,
-        postGame.description,
-        user.id,
-        postGame.genreId,
-        postGame.price
-    ];
-
     const conn = await getPool().getConnection();
-    const [result] = await conn.query<ResultSetHeader>(query, values);
-    conn.release();
+    try 
+    {
+        await conn.beginTransaction();
 
-    // Add platforms for newly inserted game
-    const gameId = result.insertId;
-    await addPlatforms(gameId, postGame.platformIds);
-    return {
-        gameId: result.insertId
-    };
+        const sql = `
+        INSERT INTO game (title, description, creation_date, creator_id, genre_id, price)
+        VALUES (?, ?, NOW(), ?, ?, ?);
+        `;
+
+        const values = [
+            postGame.title,
+            postGame.description,
+            user.id,
+            postGame.genreId,
+            postGame.price
+        ];
+
+        const [result] = await conn.query<ResultSetHeader>(sql, values);
+
+        // Add platforms for newly inserted game
+        const gameId = result.insertId;
+        await addPlatforms(conn, gameId, postGame.platformIds);
+
+        await conn.commit();
+        return {
+            gameId: result.insertId
+        };
+    } catch (err) {
+        await conn.rollback();
+        Logger.error(err);
+        return false;
+    } finally {
+        conn.release();
+    }
 }
