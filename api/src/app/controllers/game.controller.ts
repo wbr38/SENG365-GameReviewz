@@ -5,6 +5,7 @@ import { API_Game, PostGame } from "../interfaces/game.interface";
 import { DB_User } from "../interfaces/user.interface";
 import * as games from "../models/game.model";
 import { GameSortMethod } from "../models/game.model";
+import * as gameActions from "../models/game.review.model";
 import * as users from "../models/user.model";
 import * as schemas from "../resources/schemas.json";
 import { validate } from "../services/validator";
@@ -288,7 +289,34 @@ export async function editGame(req: Request, res: Response): Promise<Response> {
 
 export async function deleteGame(req: Request, res: Response): Promise<Response> {
     try {
-        return res.status(501).send();
+        const authToken = req.get("X-Authorization");
+        if (!authToken)
+            return res.status(401).send();
+
+        const user = await users.getUserByToken(authToken);
+        if (!user)
+            return res.status(401).send();
+
+        const gameId = parseInt(req.params.id);
+        if (isNaN(gameId))
+            return res.status(400).send("id must be a number");
+
+        const game = await games.getGameById(gameId);
+        if (!game)
+            return res.status(404).send("No game found with id");
+
+        if (game.creator_id != user.id)
+            return res.status(403).send("Only the creator of a game may delete it");
+
+        const hasReviews = await gameActions.doesGameHaveReviews(game.id);
+        if (hasReviews)
+            return res.status(403).send("Can not delete a game with one or more reviews");
+
+        const deleted = await games.deleteGame(gameId);
+        if (!deleted)
+            return res.status(500).send();
+
+        return res.status(200).send();
     } catch (err) {
         Logger.error(err);
         return res.status(500).send();

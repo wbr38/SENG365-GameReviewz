@@ -1,0 +1,15 @@
+meta {
+  name: _delete reviews
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{BASE_URL}}/executeSql
+  body: text
+  auth: none
+}
+
+body:text {
+  DELETE FROM game_review WHERE game_review.game_id=1;
+}

@@ -1,0 +1,21 @@
+meta {
+  name: DELETE game -invalid, invalid game
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{BASE_URL}}/games/999999
+  body: none
+  auth: none
+}
+
+headers {
+  X-Authorization: token
+}
+
+tests {
+  test("Status code is 404", function () {
+      expect(res.getStatus()).to.equal(404);
+  });
+}

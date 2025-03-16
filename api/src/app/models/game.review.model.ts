@@ -18,6 +18,19 @@ export async function reviewExists(userId: number, gameId: number): Promise<bool
     return rows.length > 0;
 }
 
+export async function doesGameHaveReviews(gameId: number): Promise<boolean> {
+    const query = "SELECT EXISTS(SELECT * FROM game_review WHERE game_review.game_id = ?) AS gameReviewed";
+
+    const conn = await getPool().getConnection();
+    const queryResult = await conn.query(query, [gameId]);
+    conn.release();
+
+    type DBResult = { gameReviewed: 1 | 0 };
+    const rows = queryResult[0] as DBResult[];
+    return !!rows[0].gameReviewed;
+}
+
+
 export async function getReviews(gameId: number) {
 
     const query = `

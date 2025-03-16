@@ -299,3 +299,49 @@ export async function editGame(
         conn.release();
     }
 }
+
+export async function deleteGame(gameId: number) {
+
+    const conn = await getPool().getConnection();
+    try {
+        await conn.beginTransaction();
+
+        // - game_platforms
+        await conn.query(
+            "DELETE FROM game_platforms WHERE game_platforms.game_id = ?",
+            [gameId]
+        );
+
+        // game_review should be empty (checked in controller)
+
+        // - owned
+        await conn.query(
+            "DELETE FROM owned WHERE owned.game_id = ?",
+            [gameId]
+
+        );
+
+        // - wishlist
+        await conn.query(
+            "DELETE FROM wishlist WHERE wishlist.game_id = ?",
+            [gameId]
+
+        );
+
+        // - game
+        await conn.query(
+            "DELETE FROM game WHERE game.id = ?",
+            [gameId]
+
+        );
+
+        await conn.commit();
+        return true;
+    } catch (err) {
+        await conn.rollback();
+        Logger.error(err);
+        return false;
+    } finally {
+        conn.release();
+    }
+}

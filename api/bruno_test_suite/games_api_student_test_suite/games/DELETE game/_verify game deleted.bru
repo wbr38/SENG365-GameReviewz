@@ -1,0 +1,26 @@
+meta {
+  name: _verify game deleted
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{BASE_URL}}/executeSql
+  body: text
+  auth: none
+}
+
+body:text {
+  SELECT COUNT(*) as count FROM game WHERE game.id=1;
+}
+
+tests {
+  test("Game was deleted", function() {
+      try{
+          var data = res.getBody()[0];
+          expect(data.count).to.equal(0)
+      } catch(err) {
+          expect.fail("INVALID RESPONSE");
+      }
+  });
+}
