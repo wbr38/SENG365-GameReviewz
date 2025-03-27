@@ -163,6 +163,11 @@ export async function getGames(
         query += " AND game_review.user_id = ?";
         values.push(reviewerId);
     }
+    
+    if (creatorId != undefined) {
+        query += " AND game.creator_id = ?";
+        values.push(creatorId);
+    }
 
     if (genreIds?.length) {
         query += " AND game.genre_id in (?)";
