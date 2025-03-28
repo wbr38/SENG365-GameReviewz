@@ -1,8 +1,8 @@
 import { PoolConnection, ResultSetHeader } from "mysql2/promise";
 import { getPool } from "../../config/db";
 import Logger from "../../config/logger";
-import { DB_Game, PostGame } from "../interfaces/game.interface";
-import { DB_User } from "../interfaces/user.interface";
+import { DBGame, PostGame } from "../interfaces/game.interface";
+import { DBUser } from "../interfaces/user.interface";
 
 export enum GameSortMethod {
     ALPHABETICAL_ASC,
@@ -63,13 +63,13 @@ export async function getPlatforms() {
     return result;
 }
 
-export async function getGameByTitle(title: string): Promise<DB_Game | null> {
+export async function getGameByTitle(title: string): Promise<DBGame | null> {
     const query = "SELECT * FROM game WHERE game.title = ?";
     const conn = await getPool().getConnection();
     const queryResult = await conn.query(query, [title]);
     conn.release();
 
-    const result = queryResult[0] as DB_Game[];
+    const result = queryResult[0] as DBGame[];
     if (result.length > 0)
         return result[0];
 
@@ -97,7 +97,7 @@ export async function getGameById(gameId: number) {
     const queryResult = await conn.query(query, [gameId]);
     conn.release();
 
-    type DBResult = DB_Game & Pick<DB_User, "first_name" | "last_name"> & {
+    type DBResult = DBGame & Pick<DBUser, "first_name" | "last_name"> & {
         number_of_owners: number,
         number_of_wishlists: number,
         platform_ids?: string;
@@ -105,7 +105,7 @@ export async function getGameById(gameId: number) {
     };
 
     const rows = queryResult[0] as DBResult[];
-    if (rows.length == 0)
+    if (rows.length === 0)
         return null;
 
     return rows[0];
@@ -121,13 +121,13 @@ export async function getGames(
     creatorId?: number,
     reviewerId?: number,
     sortBy?: GameSortMethod,
-    ownedByUser?: DB_User,
-    wishlistedByUser?: DB_User,
+    ownedByUser?: DBUser,
+    wishlistedByUser?: DBUser,
 ) {
     const values: any[] = [];
     let query = `
-        SELECT 
-            game.*, 
+        SELECT
+            game.*,
             (SELECT AVG(gr.rating) FROM game_review AS gr WHERE gr.game_id = game.id) as avg_rating,
             (SELECT GROUP_CONCAT(DISTINCT gp.platform_id ORDER BY gp.platform_id ASC) FROM game_platforms AS gp WHERE gp.game_id = game.id) as platform_ids,
             creator.first_name, creator.last_name
@@ -154,17 +154,17 @@ export async function getGames(
         values.push(`%${q}%`);
     }
 
-    if (price != undefined) {
+    if (price !== undefined) {
         query += " AND game.price <= ?";
         values.push(price);
     }
 
-    if (reviewerId != undefined) {
+    if (reviewerId !== undefined) {
         query += " AND game_review.user_id = ?";
         values.push(reviewerId);
     }
 
-    if (creatorId != undefined) {
+    if (creatorId !== undefined) {
         query += " AND game.creator_id = ?";
         values.push(creatorId);
     }
@@ -198,12 +198,12 @@ export async function getGames(
     const queryResult = await conn.query(query, values);
     conn.release();
 
-    type DBResult = DB_Game & Pick<DB_User, "first_name" | "last_name"> & {
+    type DBResult = DBGame & Pick<DBUser, "first_name" | "last_name"> & {
         avg_rating?: string;
         platform_ids?: string;
     };
 
-    let rows = queryResult[0] as DBResult[];
+    const rows = queryResult[0] as DBResult[];
     const gamesCount = rows.length;
 
     startIndex ??= 0;
@@ -222,7 +222,7 @@ async function addPlatforms(db: PoolConnection, gameId: number, platforms: numbe
     const valueStr = platforms.map(x => "(?, ?)").join(", ");
     const values = platforms.flatMap(platformId => [gameId, platformId]);
 
-    let query = `
+    const query = `
     INSERT INTO game_platforms (game_id, platform_id)
     VALUES ${valueStr}
     `;
@@ -231,7 +231,7 @@ async function addPlatforms(db: PoolConnection, gameId: number, platforms: numbe
     return result;
 }
 
-export async function addGame(user: DB_User, postGame: PostGame) {
+export async function addGame(user: DBUser, postGame: PostGame) {
 
     const conn = await getPool().getConnection();
     try {

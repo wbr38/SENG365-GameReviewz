@@ -4,7 +4,7 @@ import * as users from "../models/user.model";
 import * as schemas from "../resources/schemas.json";
 import * as passwords from "../services/passwords";
 import { validate } from "../services/validator";
-import { API_User } from "../interfaces/user.interface";
+import { APIUser } from "../interfaces/user.interface";
 
 export async function register(req: Request, res: Response): Promise<Response> {
     try {
@@ -66,7 +66,7 @@ export async function logout(req: Request, res: Response): Promise<Response> {
 export async function view(req: Request, res: Response): Promise<Response> {
     try {
         // Parse id from params
-        const userId = parseInt(req.params.id);
+        const userId = parseInt(req.params.id, 10);
         if (isNaN(userId))
             return res.status(400).send("id must be a number");
 
@@ -74,7 +74,7 @@ export async function view(req: Request, res: Response): Promise<Response> {
         if (!user)
             return res.status(404).send("No user with specified ID");
 
-        const result: API_User = {
+        const result: APIUser = {
             firstName: user.first_name,
             lastName: user.last_name
         };
@@ -83,7 +83,7 @@ export async function view(req: Request, res: Response): Promise<Response> {
         const authToken = req.get("X-Authorization");
         if (authToken) {
             const loggedInUser = await users.getUserByToken(authToken);
-            if (loggedInUser?.id == user.id)
+            if (loggedInUser?.id === user.id)
                 result.email = user.email;
         }
 
@@ -105,7 +105,7 @@ export async function update(req: Request, res: Response): Promise<Response> {
             return res.status(400).send();
 
         // Parse user id from params
-        const userId = parseInt(req.params.id);
+        const userId = parseInt(req.params.id, 10);
         if (isNaN(userId))
             return res.status(400).send();
 
@@ -115,7 +115,7 @@ export async function update(req: Request, res: Response): Promise<Response> {
             return res.status(404).send("");
 
         // User with the given id does not match the auth token header
-        if (user.auth_token != authToken)
+        if (user.auth_token !== authToken)
             return res.status(403).send("Can not edit another user's information");
 
         const { email, firstName, lastName, password, currentPassword } = req.body as { [key: string]: string | undefined; };
@@ -131,7 +131,7 @@ export async function update(req: Request, res: Response): Promise<Response> {
             if (!currentPassword)
                 return res.status(400).send("currentPassword must be supplied");
 
-            if (currentPassword == password)
+            if (currentPassword === password)
                 return res.status(403).send("Identical current and new passwords");
 
             const validPassword = await passwords.compare(currentPassword, user.password);

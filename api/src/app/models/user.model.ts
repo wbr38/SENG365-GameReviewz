@@ -3,9 +3,9 @@ import randtoken from "rand-token";
 import { getPool } from "../../config/db";
 import Logger from "../../config/logger";
 import * as passwords from "../services/passwords";
-import { DB_User } from "../interfaces/user.interface";
+import { DBUser } from "../interfaces/user.interface";
 
-async function getUserByEmail(email: string): Promise<DB_User | null> {
+async function getUserByEmail(email: string): Promise<DBUser | null> {
     Logger.info(`Fetching user ${email} from the database`);
     const conn = await getPool().getConnection();
     const query = "SELECT * from user WHERE user.email = ?";
@@ -13,7 +13,7 @@ async function getUserByEmail(email: string): Promise<DB_User | null> {
     conn.release();
 
     if (Array.isArray(rows) && rows.length > 0)
-        return rows[0] as DB_User;
+        return rows[0] as DBUser;
 
     return null;
 }
@@ -23,7 +23,7 @@ export async function isEmailInUse(email: string): Promise<boolean> {
     return !!fetchedUser;
 }
 
-export async function getUserById(id: number): Promise<DB_User | null> {
+export async function getUserById(id: number): Promise<DBUser | null> {
     Logger.info(`Fetching user with id #${id} from the database`);
     const conn = await getPool().getConnection();
     const query = "SELECT * FROM user WHERE user.id = ?";
@@ -31,12 +31,12 @@ export async function getUserById(id: number): Promise<DB_User | null> {
     conn.release();
 
     if (Array.isArray(rows) && rows.length > 0)
-        return rows[0] as DB_User;
+        return rows[0] as DBUser;
 
     return null;
 }
 
-export async function getUserByToken(authToken: string): Promise<DB_User | null> {
+export async function getUserByToken(authToken: string): Promise<DBUser | null> {
     // Probably a bad idea to log auth tokens
     // Logger.info(`Getting user ${email} from the database`);
     const conn = await getPool().getConnection();
@@ -45,7 +45,7 @@ export async function getUserByToken(authToken: string): Promise<DB_User | null>
     conn.release();
 
     if (Array.isArray(rows) && rows.length > 0)
-        return rows[0] as DB_User;
+        return rows[0] as DBUser;
 
     return null;
 }
@@ -115,7 +115,7 @@ export async function logout(
 }
 
 export async function update(
-    user: DB_User,
+    user: DBUser,
     email?: string,
     firstName?: string,
     lastName?: string,

@@ -1,5 +1,5 @@
 // User entity as defined by the database
-export interface DB_User {
+export interface DBUser {
     id: number;
     email: string;
     first_name: string;
@@ -10,7 +10,7 @@ export interface DB_User {
 }
 
 // User entity as defined by API requests/responses
-export interface API_User {
+export interface APIUser {
     // Only defined when user is viewing their own profile
     email?: string;
     firstName: string;

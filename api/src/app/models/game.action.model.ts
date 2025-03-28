@@ -28,7 +28,7 @@ export async function removeGameFromWishlist(userId: number, gameId: number): Pr
     conn.release();
 
     // Should not affect more than 1 row
-    return queryResult[0].affectedRows == 1;
+    return queryResult[0].affectedRows === 1;
 }
 
 export async function addGameToOwned(userId: number, gameId: number): Promise<void> {
@@ -46,7 +46,7 @@ export async function removeGameFromOwned(userId: number, gameId: number): Promi
     conn.release();
 
     // Should not affect more than 1 row
-    return queryResult[0].affectedRows == 1;
+    return queryResult[0].affectedRows === 1;
 }
 
 export async function isGameOwned(userId: number, gameId: number): Promise<boolean> {

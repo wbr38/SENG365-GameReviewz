@@ -7,7 +7,7 @@ import * as storage from "../services/storage";
 export async function getImage(req: Request, res: Response): Promise<Response> {
     try {
         // Parse id from params
-        const userId = parseInt(req.params.id);
+        const userId = parseInt(req.params.id, 10);
         if (isNaN(userId))
             return res.status(400).send("id must be a number");
 
@@ -41,7 +41,7 @@ export async function setImage(req: Request, res: Response): Promise<Response> {
             return res.status(401).send();
         }
 
-        const userId = parseInt(req.params.id);
+        const userId = parseInt(req.params.id, 10);
         if (isNaN(userId))
             return res.status(400).send("id must be a number");
 
@@ -49,7 +49,7 @@ export async function setImage(req: Request, res: Response): Promise<Response> {
         if (!user)
             return res.status(403).send("No such user with ID given");
 
-        if (user.auth_token != authToken)
+        if (user.auth_token !== authToken)
             return res.status(403).send("Can not change another user's profile photo");
 
         const contentType = req.header("Content-Type");
@@ -79,7 +79,7 @@ export async function deleteImage(req: Request, res: Response): Promise<Response
         if (!authToken)
             return res.status(401).send();
 
-        const userId = parseInt(req.params.id);
+        const userId = parseInt(req.params.id, 10);
         if (isNaN(userId))
             return res.status(400).send("id must be a number");
 
@@ -87,7 +87,7 @@ export async function deleteImage(req: Request, res: Response): Promise<Response
         if (!user)
             return res.status(403).send("No such user with ID given");
 
-        if (user.auth_token != authToken)
+        if (user.auth_token !== authToken)
             return res.status(403).send("Can not delete another user's profile photo");
 
         const filename = user.image_filename;

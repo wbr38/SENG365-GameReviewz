@@ -9,7 +9,7 @@ import * as storage from "../services/storage";
 export async function getImage(req: Request, res: Response): Promise<Response> {
     try {
         // Parse id from params
-        const gameId = parseInt(req.params.id);
+        const gameId = parseInt(req.params.id, 10);
         if (isNaN(gameId))
             return res.status(400).send("id must be a number");
 
@@ -47,7 +47,7 @@ export async function setImage(req: Request, res: Response): Promise<Response> {
         if (!user)
             return res.status(401).send();
 
-        const gameId = parseInt(req.params.id);
+        const gameId = parseInt(req.params.id, 10);
         if (isNaN(gameId))
             return res.status(400).send("id must be a number");
 
@@ -55,7 +55,7 @@ export async function setImage(req: Request, res: Response): Promise<Response> {
         if (!game)
             return res.status(404).send("No game found with id");
 
-        if (game.creator_id != user.id)
+        if (game.creator_id !== user.id)
             return res.status(401).send("Can't change the image of a game you did not create");
 
         const contentType = req.header("Content-Type");

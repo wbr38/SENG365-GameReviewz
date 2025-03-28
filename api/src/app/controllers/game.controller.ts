@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import { ParsedQs } from "qs";
 import Logger from "../../config/logger";
-import { API_Game, PostGame } from "../interfaces/game.interface";
-import { DB_User } from "../interfaces/user.interface";
+import { APIGame, PostGame } from "../interfaces/game.interface";
+import { DBUser } from "../interfaces/user.interface";
 import * as games from "../models/game.model";
 import { GameSortMethod } from "../models/game.model";
 import * as gameActions from "../models/game.review.model";
@@ -10,45 +10,42 @@ import * as users from "../models/user.model";
 import * as schemas from "../resources/schemas.json";
 import { validate } from "../services/validator";
 
-namespace ParamsUtil {
-    // ParsedQs is the type of req.query;
-
-    export function ParseValue<T>(params: ParsedQs, key: string, convert: (value: any) => T): T | undefined {
-        const param = params[key];
-        if (typeof param === "string") {
-            return convert(param);
-        }
-
-        return undefined;
+// ParsedQs is the type of req.query;
+export function ParseParamValue<T>(params: ParsedQs, key: string, convert: (value: any) => T): T | undefined {
+    const param = params[key];
+    if (typeof param === "string") {
+        return convert(param);
     }
 
-    export function ParseArray<T>(params: ParsedQs, key: string, convert: (value: any) => T): T[] {
-        const result = [] as T[];
-        const param = params[key];
+    return undefined;
+}
 
-        // Single value
-        if (typeof param === "string") {
-            result.push(convert(param));
-            return result;
-        }
+export function ParseParamArray<T>(params: ParsedQs, key: string, convert: (value: any) => T): T[] {
+    const result = [] as T[];
+    const param = params[key];
 
-        // Array, convert values
-        if (Array.isArray(param)) {
-            for (const value of param) {
-                if (typeof value !== "string")
-                    continue;
-
-                result.push(convert(value));
-            }
-        }
-
+    // Single value
+    if (typeof param === "string") {
+        result.push(convert(param));
         return result;
     }
+
+    // Array, convert values
+    if (Array.isArray(param)) {
+        for (const value of param) {
+            if (typeof value !== "string")
+                continue;
+
+            result.push(convert(value));
+        }
+    }
+
+    return result;
 }
 
 export async function getAllGames(req: Request, res: Response): Promise<Response> {
 
-    const parseBoolean = (x: string) => x == "true";
+    const parseBoolean = (x: string) => x === "true";
     const parseSortMethod = (sortMethod: keyof typeof GameSortMethod): GameSortMethod | undefined => {
         return GameSortMethod[sortMethod];
     };
@@ -59,14 +56,14 @@ export async function getAllGames(req: Request, res: Response): Promise<Response
             return res.status(400).send(`Bad Request: ${validation.errorText}`);
 
         const params = req.query;
-        const startIndex = ParamsUtil.ParseValue(params, "startIndex", parseInt);
-        const count = ParamsUtil.ParseValue(params, "count", parseInt);
+        const startIndex = ParseParamValue(params, "startIndex", parseInt);
+        const count = ParseParamValue(params, "count", parseInt);
 
         let q: string | undefined;
-        if (typeof params.q == "string")
+        if (typeof params.q === "string")
             q = params.q;
 
-        const genreIds = ParamsUtil.ParseArray(params, "genreIds", parseInt);
+        const genreIds = ParseParamArray(params, "genreIds", parseInt);
         if (!genreIds)
             return res.status(400).send();
 
@@ -77,9 +74,9 @@ export async function getAllGames(req: Request, res: Response): Promise<Response
         if (!validGenreIds)
             return res.status(400).send();
 
-        const price = ParamsUtil.ParseValue(params, "price", parseInt);
+        const price = ParseParamValue(params, "price", parseInt);
 
-        const platformIds = ParamsUtil.ParseArray(params, "platformIds", parseInt);
+        const platformIds = ParseParamArray(params, "platformIds", parseInt);
         if (!platformIds)
             return res.status(400).send();
 
@@ -90,18 +87,18 @@ export async function getAllGames(req: Request, res: Response): Promise<Response
         if (!validPlatforms)
             return res.status(400).send();
 
-        const creatorId = ParamsUtil.ParseValue(params, "creatorId", parseInt);
-        const reviewerId = ParamsUtil.ParseValue(params, "reviewerId", parseInt);
-        const sortBy = ParamsUtil.ParseValue(params, "sortBy", parseSortMethod);
+        const creatorId = ParseParamValue(params, "creatorId", parseInt);
+        const reviewerId = ParseParamValue(params, "reviewerId", parseInt);
+        const sortBy = ParseParamValue(params, "sortBy", parseSortMethod);
 
-        let user: DB_User | undefined = undefined;
+        let user: DBUser | undefined;
         const authToken = req.get("X-Authorization");
         if (authToken) {
             user = await users.getUserByToken(authToken) ?? undefined;
         }
 
-        let ownedByUser: DB_User | undefined = undefined;
-        const ownedByMe = ParamsUtil.ParseValue(params, "ownedByMe", parseBoolean);
+        let ownedByUser: DBUser | undefined;
+        const ownedByMe = ParseParamValue(params, "ownedByMe", parseBoolean);
         if (ownedByMe) {
             if (!user)
                 return res.status(401).send("");
@@ -109,8 +106,8 @@ export async function getAllGames(req: Request, res: Response): Promise<Response
             ownedByUser = user;
         }
 
-        const wishlistedByMe = ParamsUtil.ParseValue(params, "wishlistedByMe", parseBoolean);
-        let wishlistedByUser: DB_User | undefined = undefined;
+        const wishlistedByMe = ParseParamValue(params, "wishlistedByMe", parseBoolean);
+        let wishlistedByUser: DBUser | undefined;
         if (wishlistedByMe) {
             if (!user)
                 return res.status(401).send("");
@@ -133,7 +130,7 @@ export async function getAllGames(req: Request, res: Response): Promise<Response
         );
 
         type APIResult = {
-            games: API_Game[],
+            games: APIGame[],
             count: number
         };
 
@@ -149,7 +146,7 @@ export async function getAllGames(req: Request, res: Response): Promise<Response
                     creatorFirstName: game.first_name,
                     creatorLastName: game.last_name,
                     rating: game.avg_rating ? parseFloat(game.avg_rating) : 0,
-                    platformIds: game.platform_ids?.split(",").map(x => parseInt(x)) ?? [],
+                    platformIds: game.platform_ids?.split(",").map(x => parseInt(x, 10)) ?? [],
                 };
             }),
             count: gamesResult.count
@@ -164,7 +161,7 @@ export async function getAllGames(req: Request, res: Response): Promise<Response
 
 export async function getGame(req: Request, res: Response): Promise<Response> {
     try {
-        const gameId = parseInt(req.params.id);
+        const gameId = parseInt(req.params.id, 10);
         if (isNaN(gameId))
             return res.status(400).send("id must be a number");
 
@@ -172,7 +169,7 @@ export async function getGame(req: Request, res: Response): Promise<Response> {
         if (!game)
             return res.status(404).send("No game with id");
 
-        type APIResult = API_Game & {
+        type APIResult = APIGame & {
             description: string,
             numberOfWishlists: number,
             numberOfOwners: number,
@@ -189,7 +186,7 @@ export async function getGame(req: Request, res: Response): Promise<Response> {
             creatorFirstName: game.first_name,
             creatorLastName: game.last_name,
             rating: game.avg_rating ? parseFloat(game.avg_rating) : 0,
-            platformIds: game.platform_ids?.split(",").map(x => parseInt(x)) ?? [],
+            platformIds: game.platform_ids?.split(",").map(x => parseInt(x, 10)) ?? [],
             numberOfWishlists: game.number_of_wishlists,
             numberOfOwners: game.number_of_owners,
         };
@@ -257,7 +254,7 @@ export async function editGame(req: Request, res: Response): Promise<Response> {
         if (!user)
             return res.status(401).send();
 
-        const gameId = parseInt(req.params.id);
+        const gameId = parseInt(req.params.id, 10);
         if (isNaN(gameId))
             return res.status(400).send("id must be a number");
 
@@ -269,7 +266,7 @@ export async function editGame(req: Request, res: Response): Promise<Response> {
         if (!game)
             return res.status(404).send("No game found with id");
 
-        if (game.creator_id != user.id)
+        if (game.creator_id !== user.id)
             return res.status(403).send("Only the creator of a game may change it");
 
         const { title, description, price, platformIds, genreId } = req.body;
@@ -297,7 +294,7 @@ export async function deleteGame(req: Request, res: Response): Promise<Response>
         if (!user)
             return res.status(401).send();
 
-        const gameId = parseInt(req.params.id);
+        const gameId = parseInt(req.params.id, 10);
         if (isNaN(gameId))
             return res.status(400).send("id must be a number");
 
@@ -305,7 +302,7 @@ export async function deleteGame(req: Request, res: Response): Promise<Response>
         if (!game)
             return res.status(404).send("No game found with id");
 
-        if (game.creator_id != user.id)
+        if (game.creator_id !== user.id)
             return res.status(403).send("Only the creator of a game may delete it");
 
         const hasReviews = await gameActions.doesGameHaveReviews(game.id);

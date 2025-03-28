@@ -1,4 +1,4 @@
-export interface DB_GameReview {
+export interface DBGameReview {
     id: number;
     game_id: number;
     user_id: number;
@@ -7,7 +7,7 @@ export interface DB_GameReview {
     timestamp: Date;
 }
 
-export interface API_GameReview {
+export interface APIGameReview {
     reviewerId: number;
     rating: number;
     review?: string;

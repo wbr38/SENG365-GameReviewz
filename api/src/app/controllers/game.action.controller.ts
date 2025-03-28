@@ -16,7 +16,7 @@ export async function addGameToWishlist(req: Request, res: Response): Promise<Re
             return res.status(401).send();
 
         // Parse id from params
-        const gameId = parseInt(req.params.id);
+        const gameId = parseInt(req.params.id, 10);
         if (isNaN(gameId))
             return res.status(400).send("id must be a number");
 
@@ -24,7 +24,7 @@ export async function addGameToWishlist(req: Request, res: Response): Promise<Re
         if (!game)
             return res.status(404).send("No game with id");
 
-        if (game.creator_id == user.id)
+        if (game.creator_id === user.id)
             return res.status(403).send("Can not wishlist a game you created");
 
         const gameOwned = await gameActions.isGameOwned(user.id, game.id);
@@ -55,7 +55,7 @@ export async function removeGameFromWishlist(req: Request, res: Response): Promi
             return res.status(401).send();
 
         // Parse id from params
-        const gameId = parseInt(req.params.id);
+        const gameId = parseInt(req.params.id, 10);
         if (isNaN(gameId))
             return res.status(400).send("id must be a number");
 
@@ -87,7 +87,7 @@ export async function addGameToOwned(req: Request, res: Response): Promise<Respo
             return res.status(401).send();
 
         // Parse id from params
-        const gameId = parseInt(req.params.id);
+        const gameId = parseInt(req.params.id, 10);
         if (isNaN(gameId))
             return res.status(400).send("id must be a number");
 
@@ -95,7 +95,7 @@ export async function addGameToOwned(req: Request, res: Response): Promise<Respo
         if (!game)
             return res.status(404).send("No game with id");
 
-        if (game.creator_id == user.id)
+        if (game.creator_id === user.id)
             return res.status(403).send("Can not own a game you created");
 
         const gameOwned = await gameActions.isGameOwned(user.id, game.id);
@@ -127,7 +127,7 @@ export async function removeGameFromOwned(req: Request, res: Response): Promise<
             return res.status(401).send();
 
         // Parse id from params
-        const gameId = parseInt(req.params.id);
+        const gameId = parseInt(req.params.id, 10);
         if (isNaN(gameId))
             return res.status(400).send("id must be a number");
 

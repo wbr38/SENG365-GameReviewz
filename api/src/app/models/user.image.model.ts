@@ -1,9 +1,9 @@
 import { getPool } from "../../config/db";
 import Logger from "../../config/logger";
-import { DB_User } from "../interfaces/user.interface";
+import { DBUser } from "../interfaces/user.interface";
 import * as storage from "../services/storage";
 
-export async function setImage(user: DB_User, image: Buffer, ext: string): Promise<void> {
+export async function setImage(user: DBUser, image: Buffer, ext: string): Promise<void> {
     // Write to disk
     const filename = `user_${user.id}.${ext}`;
     storage.writeImage(filename, image);
@@ -16,7 +16,7 @@ export async function setImage(user: DB_User, image: Buffer, ext: string): Promi
     conn.release();
 }
 
-export async function deleteImage(user: DB_User): Promise<void> {
+export async function deleteImage(user: DBUser): Promise<void> {
     Logger.info(`Deleting image of user ${user.email}`);
 
     // Delete from disk

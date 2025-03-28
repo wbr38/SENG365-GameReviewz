@@ -1,5 +1,5 @@
 // Game entity as defined by the database
-export interface DB_Game {
+export interface DBGame {
     id: number;
     title: string;
     description: string;
@@ -13,7 +13,7 @@ export interface DB_Game {
 type DateTimeOutput = string;
 
 // Game entity as defined by the API
-export interface API_Game {
+export interface APIGame {
     gameId: number;
     title: string;
     genreId: number;

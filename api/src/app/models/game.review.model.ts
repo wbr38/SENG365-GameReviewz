@@ -1,7 +1,7 @@
 import { getPool } from "../../config/db";
-import { DB_Game } from "../interfaces/game.interface";
-import { DB_GameReview } from "../interfaces/game.review.interface";
-import { DB_User } from "../interfaces/user.interface";
+import { DBGame } from "../interfaces/game.interface";
+import { DBGameReview } from "../interfaces/game.review.interface";
+import { DBUser } from "../interfaces/user.interface";
 
 export async function reviewExists(userId: number, gameId: number): Promise<boolean> {
     const query = `
@@ -14,7 +14,7 @@ export async function reviewExists(userId: number, gameId: number): Promise<bool
     const queryResult = await conn.query(query, [userId, gameId]);
     conn.release();
 
-    const rows = queryResult[0] as DB_Game[];
+    const rows = queryResult[0] as DBGame[];
     return rows.length > 0;
 }
 
@@ -47,7 +47,7 @@ export async function getReviews(gameId: number) {
     const queryResult = await conn.query(query, [gameId]);
     conn.release();
 
-    type DBResult = DB_GameReview & Pick<DB_User, "first_name" | "last_name">;
+    type DBResult = DBGameReview & Pick<DBUser, "first_name" | "last_name">;
     const rows = queryResult[0] as DBResult[];
     return rows;
 }
