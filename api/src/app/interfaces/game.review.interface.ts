@@ -5,13 +5,13 @@ export interface DB_GameReview {
     rating: number;
     review?: string;
     timestamp: Date;
-};
+}
 
 export interface API_GameReview {
-    reviewerId: number,
-    rating: number,
-    review?: string,
-    reviewerFirstName: string,
-    reviewerLastName: string,
-    timestamp: Date
-};
+    reviewerId: number;
+    rating: number;
+    review?: string;
+    reviewerFirstName: string;
+    reviewerLastName: string;
+    timestamp: Date;
+}

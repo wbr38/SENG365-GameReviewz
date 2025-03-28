@@ -21,7 +21,7 @@ const connect = async (): Promise<void> => {
         ssl: {
             rejectUnauthorized: false
         }
-    } );
+    });
     await state.pool.getConnection(); // Check connection
     Logger.info(`Successfully connected to database`);
     return;

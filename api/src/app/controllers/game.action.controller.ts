@@ -34,7 +34,7 @@ export async function addGameToWishlist(req: Request, res: Response): Promise<Re
         const gameWishlisted = await gameActions.isGameWishlisted(user.id, game.id);
         if (gameWishlisted)
             return res.status(403).send("Game is already wishlisted");
-        
+
         await gameActions.addGameToWishlist(user.id, game.id);
         return res.status(200).send();
     } catch (err) {

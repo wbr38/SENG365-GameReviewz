@@ -30,7 +30,7 @@ export async function getGenres() {
     type APIResult = {
         genreId: number,
         name: string
-    }
+    };
 
     const result: APIResult[] = [];
     for (const row of rows)
@@ -54,7 +54,7 @@ export async function getPlatforms() {
     type APIResult = {
         platformId: number,
         name: string
-    }
+    };
 
     const result: APIResult[] = [];
     for (const row of rows)
@@ -163,7 +163,7 @@ export async function getGames(
         query += " AND game_review.user_id = ?";
         values.push(reviewerId);
     }
-    
+
     if (creatorId != undefined) {
         query += " AND game.creator_id = ?";
         values.push(creatorId);

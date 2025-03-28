@@ -32,4 +32,4 @@ export interface PostGame {
     genreId: number;
     price: number;
     platformIds: number[];
-};
+}

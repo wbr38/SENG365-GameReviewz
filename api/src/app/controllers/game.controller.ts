@@ -23,7 +23,7 @@ namespace ParamsUtil {
     }
 
     export function ParseArray<T>(params: ParsedQs, key: string, convert: (value: any) => T): T[] {
-        let result = [] as T[];
+        const result = [] as T[];
         const param = params[key];
 
         // Single value
@@ -153,7 +153,7 @@ export async function getAllGames(req: Request, res: Response): Promise<Response
                 };
             }),
             count: gamesResult.count
-        }
+        };
 
         return res.status(200).json(result);
     } catch (err) {

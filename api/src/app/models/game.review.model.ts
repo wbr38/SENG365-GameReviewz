@@ -34,7 +34,7 @@ export async function doesGameHaveReviews(gameId: number): Promise<boolean> {
 export async function getReviews(gameId: number) {
 
     const query = `
-    SELECT 
+    SELECT
         game_review.*,
         user.first_name, user.last_name
     FROM game_review

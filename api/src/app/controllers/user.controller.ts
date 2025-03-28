@@ -74,7 +74,7 @@ export async function view(req: Request, res: Response): Promise<Response> {
         if (!user)
             return res.status(404).send("No user with specified ID");
 
-        let result: API_User = {
+        const result: API_User = {
             firstName: user.first_name,
             lastName: user.last_name
         };
