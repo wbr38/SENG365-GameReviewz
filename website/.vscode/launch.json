@@ -13,10 +13,10 @@
             "reAttach": true,
             "preLaunchTask": "Build Website",
             "pathMappings": [
-                // {
-                //     "url": "http://localhost:8080/home/wsl/Projects/SENG365/SENG365-Assignment-2/src",
-                //     "path": "${workspaceFolder}/src"
-                // }
+                {
+                    "url": "http://localhost:8080/home/wsl/Projects/SENG365/SENG365-Assignment-2/src",
+                    "path": "${workspaceFolder}/src"
+                }
             ]
         }
     ]
