@@ -1,27 +1,21 @@
-import React from "react";
-import logo from "./logo.svg";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import "./App.css";
-import NotFound from "./components/NotFound";
+import Game from "./components/Game";
 import Games from "./components/Games";
 import Home from "./components/Home";
-import Game from "./components/Game";
+import NotFound from "./components/NotFound";
 
-function App() {
+export default function App() {
     return (
         <div className="App">
             <Router>
-                <div>
-                    <Routes>
-                        <Route path="*" element={<NotFound />} />
-                        <Route path="/" element={<Home />} />
-                        <Route path="/games" element={<Games />} />
-                        <Route path="/games/:id" element={<Game />} />
-                    </Routes>
-                </div>
+                <Routes>
+                    <Route path="*" element={<NotFound />} />
+                    <Route path="/" element={<Home />} />
+                    <Route path="/games" element={<Games />} />
+                    <Route path="/games/:id" element={<Game />} />
+                </Routes>
             </Router>
         </div>
     );
 }
-
-export default App;
