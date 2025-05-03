@@ -1,0 +1,80 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build Website",
+			"type": "npm",
+			"script": "start",
+			"problemMatcher": {
+				"pattern": [
+					{
+						"regexp": ".",
+						"file": 1,
+						"location": 2,
+						"message": 3
+					}
+				],
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": "Compiling...",
+					"endsPattern": "^No issues found\\.$"
+				}
+			},
+			"isBackground": true,
+			"dependsOn": [
+				"Run API Server"
+			],
+			"options": {
+				"env": {
+					"BROWSER": "none"
+				}
+			},
+		},
+		{
+			"label": "Run API Server",
+			"type": "npm",
+			"script": "start",
+			"path": "../seng365-assignment1-ref-impl",
+			"dependsOn": [
+				"UC DB ssh tunnel"
+			],
+			"isBackground": true,
+			"problemMatcher": {
+				"pattern": [
+					{
+						"regexp": ".",
+						"file": 1,
+						"location": 2,
+						"message": 3
+					}
+				],
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": "Successfully connected to database",
+					"endsPattern": "Listening on port.*"
+				}
+			}
+		},
+		{
+			"label": "UC DB ssh tunnel",
+			"type": "shell",
+			"command": "uc_tunnel.sh",
+			"isBackground": true,
+			"problemMatcher": {
+				"pattern": [
+					{
+						"regexp": ".*",
+						"file": 1,
+						"location": 2,
+						"message": 3
+					}
+				],
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": "Connecting\\.\\.\\.",
+					"endsPattern": "Tunnel ready"
+				}
+			}
+		}
+	]
+}
