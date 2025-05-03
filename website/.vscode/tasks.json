@@ -29,6 +29,11 @@
 					"BROWSER": "none"
 				}
 			},
+			"detail": "react-scripts start",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
 		},
 		{
 			"label": "Run API Server",

@@ -10,7 +10,6 @@
             "request": "launch",
             "url": "http://localhost:8080",
             "webRoot": "${workspaceFolder}/src",
-            "reAttach": true,
             "preLaunchTask": "Build Website",
             "pathMappings": [
                 {
