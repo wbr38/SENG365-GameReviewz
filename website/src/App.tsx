@@ -4,11 +4,13 @@ import Game from "./components/Game";
 import Games from "./components/Games";
 import Home from "./components/Home";
 import NotFound from "./components/NotFound";
+import Navbar from "./components/NavBar";
 
 export default function App() {
     return (
         <div className="App">
             <Router>
+                <Navbar />
                 <Routes>
                     <Route path="*" element={<NotFound />} />
                     <Route path="/" element={<Home />} />
