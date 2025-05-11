@@ -79,17 +79,26 @@ export class Game {
 
 export namespace Api {
 
+    export type getGamesResponse = {
+        games: Game[],
+        count: number
+    }
+
     export async function getGames(
         query: string | null
-    ): Promise<Game[]> {
+    ): Promise<getGamesResponse> {
 
         const params = new URLSearchParams();
         if (query)
             params.set("q", query);
 
         const response = await axios.get(`${BASE_URL}/games`, { params });
+
         const apiGames = response.data.games as API_Game[];
-        return apiGames.map(x => new Game(x));
+        return {
+            games: apiGames.map(x => new Game(x)),
+            count: response.data.count
+        }
     }
 
     export function getGameImage(game: Game) {
