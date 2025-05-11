@@ -4,8 +4,8 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
 import Toolbar from "@mui/material/Toolbar";
-import { Link } from "react-router-dom";
-import * as S from './NavBar.styles';
+import { Link, useNavigate } from "react-router-dom";
+import * as S from '../styles/NavBar.styles';
 
 const navLinks: { name: string, link: string }[] = [
     { name: "Log In", link: "/login" },
@@ -13,19 +13,20 @@ const navLinks: { name: string, link: string }[] = [
     { name: "Games", link: "/games" },
 ]
 
-function handleSearch(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (event.key !== 'Enter')
-        return;
-
-    const query = event.currentTarget.value;
-
-    // TODO
-    console.log("Search for: ", query);
-}
-
 export default function NavBar() {
+
+    const navigate = useNavigate();
+    function handleSearch(event: React.KeyboardEvent<HTMLInputElement>) {
+
+        if (event.key !== 'Enter')
+            return;
+
+        const query = event.currentTarget.value;
+        navigate(`/games?search=${encodeURIComponent(query)}`);
+    }
+
     return (
-        <AppBar position="static" className="nav">
+        <AppBar position="static">
             <Container >
                 <Toolbar disableGutters>
 
