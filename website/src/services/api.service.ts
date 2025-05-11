@@ -33,7 +33,7 @@ export class Game {
     public rating: number;
     public platformIds: number[];
 
-    constructor(apiGame: API_Game) {
+    constructor(apiGame: API_Game, private genreMap: Map<number, string>, private platformMap: Map<number, string>) {
         this.gameId = apiGame.gameId;
         this.title = apiGame.title;
         this.genreId = apiGame.genreId;
@@ -62,14 +62,13 @@ export class Game {
     }
 
     public getGenreName(): string {
-        // TODO: Use a cached API fetch of genres
-        return this.genreId.toString();
+        return this.genreMap.get(this.genreId) ?? "Unknown Genre";
     }
 
     public getPlatforms(): string {
-        // TODO: Use a cached value somewhere
-        // Maybe lazy load a request on each refresh?but keep using cached value
-        return "Mobile, Nintendo Switch, PC, Playstation 5";
+        return this.platformIds
+            .map(platformId => this.platformMap.get(platformId) ?? "Unknown Platform")
+            .join(", ");
     }
 
     public creatorName(): string {
@@ -80,7 +79,7 @@ export class Game {
 export namespace Api {
 
     export type getGamesResponse = {
-        games: Game[],
+        games: API_Game[],
         count: number
     }
 
@@ -93,12 +92,32 @@ export namespace Api {
             params.set("q", query);
 
         const response = await axios.get(`${BASE_URL}/games`, { params });
-
-        const apiGames = response.data.games as API_Game[];
+        const { games, count } = response.data;
         return {
-            games: apiGames.map(x => new Game(x)),
-            count: response.data.count
+            games,
+            count
         }
+    }
+
+    export async function getPlatforms() {
+        const response = await axios.get(`${BASE_URL}/games/platforms`);
+
+        interface Platform {
+            platformId: number;
+            name: string;
+        }
+
+        return response.data as Platform[];
+    }
+
+    export async function getGenres() {
+        const response = await axios.get(`${BASE_URL}/games/genres`);
+
+        interface Genre {
+            genreId: number;
+            name: string;
+        }
+        return response.data as Genre[];
     }
 
     export function getGameImage(game: Game) {

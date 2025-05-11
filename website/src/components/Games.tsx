@@ -103,26 +103,39 @@ export default function Games() {
     const [games, setGames] = useState<Game[]>([]);
     const [loading, setLoading] = useState(false);
 
-    const getGamesPromise = Api.getGames(search);
     useEffect(() => {
-        setLoading(true);
-        getGamesPromise
-            .then((x) => {
-                setGamesCount(x.count);
-                setGames(x.games.slice((page - 1) * perPage, page * perPage));
-                setLoading(false);
+        async function fetchAll() {
+            setLoading(true);
+            try {
+                const [gamesResponse, genresResponse, platformsResponse] = await Promise.all([
+                    Api.getGames(search),
+                    Api.getGenres(),
+                    Api.getPlatforms()
+                ]);
+
+                // Construct Game instances with mapping
+                const genreMap = new Map(genresResponse.map(x => [x.genreId, x.name]));
+                const platformMap = new Map(platformsResponse.map(x => [x.platformId, x.name]));
+                const games = gamesResponse.games.map(game => new Game(game, genreMap, platformMap));
+
+                setGamesCount(gamesResponse.count);
+                setGames(games.slice((page - 1) * perPage, page * perPage));
                 window.scrollTo(0, 0);
-            })
-            .catch((err) => {
-                setLoading(false);
+            } catch (err) {
+                // TODO: mui snackbar
                 console.log(err);
-            });
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchAll();
     }, [search, page, perPage]);
 
     return (
         <div>
 
-            {/* {loading && <p>Loading...</p>} */}
+            {loading && <p>Loading...</p>}
             {<GameCards games={games} count={gamesCount} />}
 
             {/* Pagination Menu */}
