@@ -1,13 +1,11 @@
 import SearchIcon from '@mui/icons-material/Search';
-import { InputBase } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
 import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
 import { Link } from "react-router-dom";
-import "../styles/NavBar.scss";
+import * as S from './NavBar.styles';
 
 const navLinks: { name: string, link: string }[] = [
     { name: "Log In", link: "/login" },
@@ -32,40 +30,33 @@ export default function NavBar() {
                 <Toolbar disableGutters>
 
                     {/* Website Title */}
-                    <Typography
-                        variant="h6"
-                        id="title"
-                        component={Link}
-                        to="/"
-                    >
+                    <S.Title to="/">
                         Game Reviewz
-                    </Typography>
+                    </S.Title>
 
                     {/* Links */}
                     <Box sx={{ display: "flex" }}>
                         {navLinks.map((navLink) => (
                             <Button
                                 key={navLink.name}
-                                className="link"
                                 component={Link}
                                 to={navLink.link}
+                                sx={{ my: 2, color: "white" }}
                             >
                                 {navLink.name}
                             </Button>
                         ))}
                     </Box>
 
-                    {/* Search */}
-                    <div className="search">
-                        <div id="icon">
+                    <S.Search>
+                        <S.IconWrapper>
                             <SearchIcon />
-                        </div>
-                        <InputBase
+                        </S.IconWrapper>
+                        <S.StyledInputBase
                             placeholder="Search"
-                            id="input"
                             onKeyDown={handleSearch}
                         />
-                    </div>
+                    </S.Search>
 
                 </Toolbar>
             </Container>
