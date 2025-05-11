@@ -1,16 +1,14 @@
-import { Box, Card, CardContent, Stack, styled, Typography } from "@mui/material";
+import { Card, CardContent, Stack, styled, Typography } from "@mui/material";
 
 export const SyledCard = styled(Card)(({ theme }) => ({
     display: "flex",
     flexDirection: "column",
     width: "20em",
     height: "100%",
-    // transition: "width 0.1s",
     transition: "all 0.15s ease-in-out",
     "&:hover": {
-        backgroundColor: "transparent",
+        backgroundColor: "#0A0A0A",
         cursor: "pointer",
-        width: "20.1em",
     },
 }));
 
