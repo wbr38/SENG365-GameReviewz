@@ -109,11 +109,9 @@ export default function Games() {
         getGamesPromise
             .then((x) => {
                 setGamesCount(x.count);
-
                 setGames(x.games.slice((page - 1) * perPage, page * perPage));
-
-                // setGames(x.games);
                 setLoading(false);
+                window.scrollTo(0, 0);
             })
             .catch((err) => {
                 setLoading(false);
