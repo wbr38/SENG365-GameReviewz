@@ -2,7 +2,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { Box, Button, CardMedia, FormControl, Grid, InputLabel, MenuItem, Pagination, Select, Stack, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Api, Game } from "../services/api.service";
+import { Api, Game, GameSortMethod } from "../services/api.service";
 import * as S from "../styles/Game.styles";
 
 function GameCards(props: { games: Game[], count: number }) {
@@ -102,6 +102,7 @@ export default function Games() {
     const [gamesCount, setGamesCount] = useState(0);
     const [games, setGames] = useState<Game[]>([]);
     const [loading, setLoading] = useState(false);
+    const [gameSortMethod, setGameSortMethod] = useState(GameSortMethod.CREATED_ASC);
 
     useEffect(() => {
         async function fetchAll() {
@@ -109,7 +110,7 @@ export default function Games() {
             try {
                 const startIndex = (page - 1) * perPage;
                 const [gamesResponse, genresResponse, platformsResponse] = await Promise.all([
-                    Api.getGames(search, startIndex, perPage),
+                    Api.getGames(search, startIndex, perPage, gameSortMethod),
                     Api.getGenres(),
                     Api.getPlatforms()
                 ]);
@@ -131,12 +132,40 @@ export default function Games() {
         }
 
         fetchAll();
-    }, [search, page, perPage]);
+    }, [search, page, perPage, gameSortMethod]);
 
     return (
         <div>
 
             {loading && <p>Loading...</p>}
+
+            {/* Sorting */}
+            <div
+                style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    marginBottom: "1em"
+                }}
+            >
+                <FormControl sx={{ minWidth: 160, mr: "2em" }} size="small">
+                    <InputLabel>Order By</InputLabel>
+                    <Select
+                        value={gameSortMethod}
+                        onChange={(event) => setGameSortMethod(event.target.value)}
+                        label="Order by"
+                    >
+                        <MenuItem value={GameSortMethod.ALPHABETICAL_ASC}>Alphabetical (Ascending)</MenuItem>
+                        <MenuItem value={GameSortMethod.ALPHABETICAL_DESC}>Alphabetical (Descending)</MenuItem>
+                        <MenuItem value={GameSortMethod.PRICE_ASC}>Price (Ascending)</MenuItem>
+                        <MenuItem value={GameSortMethod.PRICE_DESC}>Price (Descending)</MenuItem>
+                        <MenuItem value={GameSortMethod.CREATED_ASC}>Created (Ascending)</MenuItem>
+                        <MenuItem value={GameSortMethod.CREATED_DESC}>Created (Descending)</MenuItem>
+                        <MenuItem value={GameSortMethod.RATING_ASC}>Rating (Ascending)</MenuItem>
+                        <MenuItem value={GameSortMethod.RATING_DESC}>Rating (Descending)</MenuItem>
+                    </Select>
+                </FormControl>
+            </div>
+
             {<GameCards games={games} count={gamesCount} />}
 
             {/* Pagination Menu */}

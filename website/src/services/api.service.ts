@@ -7,6 +7,17 @@ export enum ApiBaseUrl {
 
 const BASE_URL = ApiBaseUrl.LocalHost;
 
+export enum GameSortMethod {
+    ALPHABETICAL_ASC = "ALPHABETICAL_ASC",
+    ALPHABETICAL_DESC = "ALPHABETICAL_DESC",
+    PRICE_ASC = "PRICE_ASC",
+    PRICE_DESC = "PRICE_DESC",
+    CREATED_ASC = "CREATED_ASC",
+    CREATED_DESC = "CREATED_DESC",
+    RATING_ASC = "RATING_ASC",
+    RATING_DESC = "RATING_DESC"
+}
+
 export interface API_Game {
     gameId: number;
     title: string;
@@ -86,7 +97,8 @@ export namespace Api {
     export async function getGames(
         query: string | null,
         startIndex?: number,
-        count?: number
+        count?: number,
+        sortBy?: GameSortMethod
     ): Promise<getGamesResponse> {
 
         const params = new URLSearchParams();
@@ -98,6 +110,9 @@ export namespace Api {
 
         if (count)
             params.set("count", count.toString());
+
+        if (sortBy)
+            params.set("sortBy", sortBy);
 
         const response = await axios.get(`${BASE_URL}/games`, { params });
         return {
