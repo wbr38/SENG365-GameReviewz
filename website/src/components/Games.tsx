@@ -107,8 +107,9 @@ export default function Games() {
         async function fetchAll() {
             setLoading(true);
             try {
+                const startIndex = (page - 1) * perPage;
                 const [gamesResponse, genresResponse, platformsResponse] = await Promise.all([
-                    Api.getGames(search),
+                    Api.getGames(search, startIndex, perPage),
                     Api.getGenres(),
                     Api.getPlatforms()
                 ]);
@@ -119,7 +120,7 @@ export default function Games() {
                 const games = gamesResponse.games.map(game => new Game(game, genreMap, platformMap));
 
                 setGamesCount(gamesResponse.count);
-                setGames(games.slice((page - 1) * perPage, page * perPage));
+                setGames(games);
                 window.scrollTo(0, 0);
             } catch (err) {
                 // TODO: mui snackbar

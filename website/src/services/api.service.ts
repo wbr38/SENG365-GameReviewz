@@ -84,18 +84,25 @@ export namespace Api {
     }
 
     export async function getGames(
-        query: string | null
+        query: string | null,
+        startIndex?: number,
+        count?: number
     ): Promise<getGamesResponse> {
 
         const params = new URLSearchParams();
         if (query)
             params.set("q", query);
 
+        if (startIndex)
+            params.set("startIndex", startIndex.toString());
+
+        if (count)
+            params.set("count", count.toString());
+
         const response = await axios.get(`${BASE_URL}/games`, { params });
-        const { games, count } = response.data;
         return {
-            games,
-            count
+            games: response.data.games,
+            count: response.data.count
         }
     }
 
