@@ -98,6 +98,8 @@ export default function Games() {
             if (!allGenres || !allPlatforms) return;
 
             try {
+                setLoading(true);
+                setGames([]);
                 const startIndex = (page - 1) * perPage;
 
                 const _selectedGenres = allGenres.filter(x => selectedGenres.includes(x.name));
@@ -256,7 +258,7 @@ export default function Games() {
                 )}
             </Grid>
 
-            {page === numPages && <p>No more games!</p>}
+            {!loading && page === numPages && <p>No more games!</p>}
 
             {/* Pagination Menu */}
             <div
