@@ -214,9 +214,9 @@ export default function Games() {
 
     return (
         <div>
-            {/* {loading && <p>Loading...</p>} */}
-
-            <pre>{gamesCount} Games</pre>
+            <p>
+                {loading ? "Loading..." : `${gamesCount} Games`}
+            </p>
 
             {/* Sorting & Filters */}
             <div
@@ -332,7 +332,7 @@ export default function Games() {
 
             {<GameCards games={games} count={gamesCount} />}
 
-            {page === numPages && <pre>No more games!</pre>}
+            {page === numPages && <p>No more games!</p>}
 
             {/* Pagination Menu */}
             <div
