@@ -79,6 +79,7 @@ export default function Game() {
     const gameId = Number(params.id!);
 
     const [game, setGame] = useState<GameInfo | null>(null);
+    const [gameCreatorImage, setGameCreatorImage] = useState("");
     const [similarGamesPage, setSimilarGamesPage] = useState(1);
     const [similarGames, setSimilarGames] = useState<GameList[] | null>(null);
 
@@ -113,6 +114,7 @@ export default function Game() {
 
             try {
                 const gameResponse = await Api.getGameInfo(gameId, allGenres, allPlatforms);
+                setGameCreatorImage(Api.getUserImage(gameResponse.creatorId));
                 setGame(gameResponse);
             } catch (error) {
                 // TODO: mui snackbar (for 404)
@@ -239,7 +241,12 @@ export default function Game() {
                 gridColumn: 1,
                 gridRow: 2,
             }}>
-                <img style={imageStyle} src={Api.getUserImage(game.creatorId)} alt="" />
+                <img
+                    style={imageStyle}
+                    src={gameCreatorImage}
+                    alt=""
+                    onError={(event) => setGameCreatorImage("https://placehold.co/200x200")}
+                />
                 <p style={{ margin: 0 }}>Creator: {game.creatorName()}</p>
             </div>
 
