@@ -1,5 +1,5 @@
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { Box, Button, CardMedia, Checkbox, FormControl, Grid, InputLabel, ListItemText, MenuItem, OutlinedInput, Pagination, Select, SelectChangeEvent, Stack, Typography } from "@mui/material";
+import { Box, Button, CardMedia, Checkbox, FormControl, Grid, InputAdornment, InputLabel, ListItemText, MenuItem, OutlinedInput, Pagination, Select, Stack, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Api, Game, GameSortMethod, Genre, Platform } from "../services/api.service";
@@ -104,6 +104,7 @@ export default function Games() {
     const [allGenres, setAllGenres] = useState<Genre[] | null>(null);
     const [allPlatforms, setAllPlatforms] = useState<Platform[] | null>(null);
     const [loading, setLoading] = useState(false);
+    const [maxPrice, setMaxPrice] = useState(0.0);
 
     const [gameSortMethod, setGameSortMethod] = useState(GameSortMethod.CREATED_ASC);
     const gameSortOptions: [GameSortMethod, string][] = [
@@ -183,7 +184,7 @@ export default function Games() {
 
                 const _selectedGenres = allGenres.filter(x => selectedGenres.includes(x.name));
                 const _selectedPlatforms = allPlatforms.filter(x => selectedPlatforms.includes(x.name));
-                const gamesResponse = await Api.getGames(search, startIndex, perPage, gameSortMethod, _selectedGenres, _selectedPlatforms);
+                const gamesResponse = await Api.getGames(search, startIndex, perPage, gameSortMethod, maxPrice, _selectedGenres, _selectedPlatforms);
 
                 // Construct Game instances with mapping
                 const genreMap = new Map(allGenres.map(x => [x.genreId, x.name]));
@@ -202,7 +203,7 @@ export default function Games() {
         }
 
         fetchGames();
-    }, [search, page, perPage, gameSortMethod, selectedGenres, selectedPlatforms, allGenres, allPlatforms]);
+    }, [search, page, perPage, gameSortMethod, maxPrice, selectedGenres, selectedPlatforms, allGenres, allPlatforms]);
 
     return (
         <div>
@@ -293,6 +294,33 @@ export default function Games() {
                         ))}
                     </Select>
                 </FormControl>
+
+                {/* Max Price */}
+                <TextField
+                    type="number"
+                    label="Max Price"
+                    size="small"
+                    value={maxPrice.toString()}
+                    onChange={(event) => {
+                        if (event.target.value === "")
+                            return setMaxPrice(0.0);
+
+                        const num = parseFloat(event.target.value);
+                        if (num <= 0)
+                            return setMaxPrice(0.0);
+
+                        if (!isNaN(num))
+                            return setMaxPrice(Math.round(num * 100) / 100); // Round to 2 decimal places
+                    }}
+                    slotProps={{
+                        htmlInput: {
+                            step: 1.0,
+                        },
+                        input: {
+                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                        },
+                    }}
+                />
             </div>
 
             {<GameCards games={games} count={gamesCount} />}

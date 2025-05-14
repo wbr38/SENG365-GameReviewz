@@ -109,8 +109,9 @@ export namespace Api {
         startIndex?: number,
         count?: number,
         sortBy?: GameSortMethod,
+        price?: number,
         genres?: Genre[],
-        platforms?: Platform[]
+        platforms?: Platform[],
     ): Promise<getGamesResponse> {
 
         const params = new URLSearchParams();
@@ -125,6 +126,9 @@ export namespace Api {
 
         if (sortBy)
             params.set("sortBy", sortBy);
+
+        if (price)
+            params.set("price", Math.round(price * 100).toString());
 
         if (genres)
             for (const genre of genres)
