@@ -155,6 +155,10 @@ export namespace Api {
         return response.data as Genre[];
     }
 
+    export function getUserImage(userId: number) {
+        return `${BASE_URL}/users/${userId}/image`;
+    }
+
     export function getGameImage(game: Game) {
         return `${BASE_URL}/games/${game.gameId}/image`;
     }

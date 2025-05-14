@@ -43,12 +43,17 @@ function GameCards(props: { games: Game[], count: number }) {
                                     width: "100%",
                                 }}
                             >
+                                {/* Details */}
                                 <Stack spacing={1}>
-                                    {/* Details */}
-                                    <S.GameDetail name="Creation Date" value={game.creationDate()} />
-                                    <S.GameDetail name="Genre" value={game.getGenreName()} />
-                                    <S.GameDetail name="Creator" value={game.creatorName()} />
-                                    <S.GameDetail name="Platforms" value={game.getPlatforms()} />
+                                    <S.GameDetail name="Creation Date">{game.creationDate()}</S.GameDetail>
+                                    <S.GameDetail name="Genre">{game.getGenreName()}</S.GameDetail>
+
+                                    <S.GameDetail name="Creator" >
+                                        <img style={{ height: "20px", marginRight: "4px" }} src={Api.getUserImage(game.creatorId)} alt="" />
+                                        {game.creatorName()}
+                                    </S.GameDetail>
+
+                                    <S.GameDetail name="Platforms">{game.getPlatforms()}</S.GameDetail>
 
                                     {/* Price & Button */}
                                     <Box
