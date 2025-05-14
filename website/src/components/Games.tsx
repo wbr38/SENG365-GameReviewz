@@ -210,6 +210,8 @@ export default function Games() {
         fetchGames();
     }, [search, page, perPage, gameSortMethod, maxPrice, selectedGenres, selectedPlatforms, allGenres, allPlatforms]);
 
+    const numPages = Math.ceil(gamesCount / perPage);
+
     return (
         <div>
             {/* {loading && <p>Loading...</p>} */}
@@ -330,6 +332,8 @@ export default function Games() {
 
             {<GameCards games={games} count={gamesCount} />}
 
+            {page === numPages && <pre>No more games!</pre>}
+
             {/* Pagination Menu */}
             <div
                 style={{
@@ -356,7 +360,7 @@ export default function Games() {
                 </FormControl>
 
                 <Pagination
-                    count={Math.ceil(gamesCount / perPage)}
+                    count={numPages}
                     page={page}
                     onChange={(event, value) => updatePage(value)}
                     variant="outlined"
