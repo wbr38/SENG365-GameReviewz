@@ -38,7 +38,7 @@ export default function Games() {
     const [games, setGames] = useState<GameList[]>([]);
     const [allGenres, setAllGenres] = useState<Genre[] | null>(null);
     const [allPlatforms, setAllPlatforms] = useState<Platform[] | null>(null);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [maxPrice, setMaxPrice] = useState(0.0);
 
     const [gameSortMethod, setGameSortMethod] = useState(GameSortMethod.CREATED_ASC);
@@ -113,7 +113,6 @@ export default function Games() {
             // Genres or platforms hasn't loaded yet
             if (!allGenres || !allPlatforms) return;
 
-            setLoading(true);
             try {
                 const startIndex = (page - 1) * perPage;
 
