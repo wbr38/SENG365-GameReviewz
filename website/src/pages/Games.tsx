@@ -1,24 +1,8 @@
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { Box, Button, CardMedia, Checkbox, FormControl, Grid, InputAdornment, InputLabel, ListItemText, MenuItem, OutlinedInput, Pagination, Select, Stack, TextField, Typography } from "@mui/material";
+import { Checkbox, FormControl, Grid, InputAdornment, InputLabel, ListItemText, MenuItem, OutlinedInput, Pagination, Select, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { Api, GameList, GameSortMethod, Genre, Platform } from "../services/api.service";
 import GameCard from "../components/GameCard";
-
-function GameCards(props: { games: GameList[], count: number }) {
-    const { games } = props;
-
-    return (
-        <div>
-            <Grid container spacing={2} columns={4} justifyContent={"center"}>
-                {games.map((game) =>
-                    <GameCard game={game}/>
-                )}
-            </Grid>
-
-        </div>
-    )
-}
 
 export default function Games() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -266,7 +250,11 @@ export default function Games() {
                 />
             </div>
 
-            {<GameCards games={games} count={gamesCount} />}
+            <Grid container spacing={2} columns={4} justifyContent={"center"}>
+                {games.map((game) =>
+                    <GameCard key={game.gameId} game={game}/>
+                )}
+            </Grid>
 
             {page === numPages && <p>No more games!</p>}
 
