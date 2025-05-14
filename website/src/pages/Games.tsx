@@ -2,87 +2,17 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { Box, Button, CardMedia, Checkbox, FormControl, Grid, InputAdornment, InputLabel, ListItemText, MenuItem, OutlinedInput, Pagination, Select, Stack, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Api, Game, GameSortMethod, Genre, Platform } from "../services/api.service";
-import * as S from "../styles/Game.styles";
+import { Api, GameList, GameSortMethod, Genre, Platform } from "../services/api.service";
+import GameCard from "../components/GameCard";
 
-function GameCards(props: { games: Game[], count: number }) {
+function GameCards(props: { games: GameList[], count: number }) {
     const { games } = props;
 
     return (
         <div>
             <Grid container spacing={2} columns={4} justifyContent={"center"}>
                 {games.map((game) =>
-                    <S.SyledCard key={game.gameId} variant="outlined" >
-
-                        {/* Hero Image */}
-                        <CardMedia
-                            component="img"
-                            alt={game.title}
-                            image={Api.getGameImage(game)}
-                            sx={{
-                                aspectRatio: "1 / 1",
-                                borderBottom: "1px solid",
-                                borderColor: "divider",
-                            }}
-                        />
-
-                        {/* Game Info Content */}
-                        <S.SyledCardContent style={{ textAlign: "left" }}>
-
-                            {/* Title */}
-                            <Typography gutterBottom variant="h6" component="div" textAlign="left">
-                                {game.title}
-                            </Typography>
-
-                            <Box
-                                sx={{
-                                    backgroundColor: "#1e1e1e",
-                                    color: "#fff",
-                                    padding: 2,
-                                    borderRadius: "4px",
-                                    width: "100%",
-                                }}
-                            >
-                                {/* Details */}
-                                <Stack spacing={1}>
-                                    <S.GameDetail name="Creation Date">{game.creationDate()}</S.GameDetail>
-                                    <S.GameDetail name="Genre">{game.getGenreName()}</S.GameDetail>
-
-                                    <S.GameDetail name="Creator" >
-                                        <img style={{ height: "20px", marginRight: "4px" }} src={Api.getUserImage(game.creatorId)} alt="" />
-                                        {game.creatorName()}
-                                    </S.GameDetail>
-
-                                    <S.GameDetail name="Platforms">{game.getPlatforms()}</S.GameDetail>
-
-                                    {/* Price & Button */}
-                                    <Box
-                                        sx={{
-                                            display: "flex",
-                                            justifyContent: "space-between",
-                                            alignItems: "center",
-                                            mt: 2,
-                                            p: 1,
-                                            borderTop: "1px solid #444",
-                                        }}
-                                    >
-                                        <Typography variant="h6" fontWeight="bold">
-                                            {game.priceStr()}
-                                        </Typography>
-
-                                        <Button
-                                            variant="outlined"
-                                            sx={{ minWidth: 0, px: 2, py: 0.5 }}
-                                            component={Link}
-                                            to={`/games/${game.gameId}`}
-                                        >
-                                            <ArrowForwardIcon />
-                                        </Button>
-                                    </Box>
-                                </Stack>
-                            </Box>
-                        </S.SyledCardContent>
-                    </S.SyledCard>
+                    <GameCard game={game}/>
                 )}
             </Grid>
 
@@ -97,7 +27,7 @@ export default function Games() {
         setSearchParams(searchParams);
     }
 
-    const search = searchParams.get("search");
+    const search = searchParams.get("search") ?? undefined;
     const page = parseInt(searchParams.get("page") || "1", 10);
     const updatePage = (value: number) => updateParam("page", value.toString());
 
@@ -105,7 +35,7 @@ export default function Games() {
     const updatePerPage = (value: number) => updateParam("perPage", value.toString());
 
     const [gamesCount, setGamesCount] = useState(0);
-    const [games, setGames] = useState<Game[]>([]);
+    const [games, setGames] = useState<GameList[]>([]);
     const [allGenres, setAllGenres] = useState<Genre[] | null>(null);
     const [allPlatforms, setAllPlatforms] = useState<Platform[] | null>(null);
     const [loading, setLoading] = useState(false);
@@ -189,15 +119,22 @@ export default function Games() {
 
                 const _selectedGenres = allGenres.filter(x => selectedGenres.includes(x.name));
                 const _selectedPlatforms = allPlatforms.filter(x => selectedPlatforms.includes(x.name));
-                const gamesResponse = await Api.getGames(search, startIndex, perPage, gameSortMethod, maxPrice, _selectedGenres, _selectedPlatforms);
-
-                // Construct Game instances with mapping
-                const genreMap = new Map(allGenres.map(x => [x.genreId, x.name]));
-                const platformMap = new Map(allPlatforms.map(x => [x.platformId, x.name]));
-                const games = gamesResponse.games.map(game => new Game(game, genreMap, platformMap));
+                const gamesResponse = await Api.getGames(
+                    allGenres,
+                    allPlatforms,
+                    {
+                        query: search,
+                        startIndex,
+                        count: perPage,
+                        sortBy: gameSortMethod,
+                        price: maxPrice,
+                        genres: _selectedGenres,
+                        platforms: _selectedPlatforms
+                    }
+                );
 
                 setGamesCount(gamesResponse.count);
-                setGames(games);
+                setGames(gamesResponse.games);
                 window.scrollTo(0, 0);
             } catch (err) {
                 // TODO: mui snackbar

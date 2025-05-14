@@ -28,7 +28,8 @@ export interface Platform {
     name: string;
 }
 
-export interface API_Game {
+// Values when querying the API for multiple /games/
+type API_GameList = {
     gameId: number;
     title: string;
     genreId: number;
@@ -41,8 +42,8 @@ export interface API_Game {
     platformIds: number[];
 }
 
-export class Game {
-
+// A "Game" when API was queried for multiple /games
+export class GameList implements API_GameList {
     public gameId: number;
     public title: string;
     public genreId: number;
@@ -54,7 +55,11 @@ export class Game {
     public rating: number;
     public platformIds: number[];
 
-    constructor(apiGame: API_Game, private genreMap: Map<number, string>, private platformMap: Map<number, string>) {
+    constructor(
+        apiGame: API_GameList,
+        protected genreMap: Map<number, string>,
+        protected platformMap: Map<number, string>
+    ) {
         this.gameId = apiGame.gameId;
         this.title = apiGame.title;
         this.genreId = apiGame.genreId;
@@ -67,7 +72,7 @@ export class Game {
         this.platformIds = apiGame.platformIds;
     }
 
-    public creationDate(): string {
+    public get creationDate(): string {
         return this._creationDate.toLocaleDateString("en-GB", {
             year: "numeric",
             month: "long",
@@ -97,24 +102,51 @@ export class Game {
     }
 }
 
+// Value when querying the API for a single /games/{id}
+type API_GameInfo = API_GameList & {
+    description: string,
+    numberOfWishlists: number,
+    numberOfOwners: number
+}
+
+// Game details when API was queried for a single /games/{id}
+export class GameInfo extends GameList implements API_GameInfo {
+    public description: string;
+    public numberOfWishlists: number;
+    public numberOfOwners: number;
+
+    constructor(
+        apiGame: API_GameInfo,
+        protected genreMap: Map<number, string>,
+        protected platformMap: Map<number, string>
+    ) {
+        super(apiGame, genreMap, platformMap);
+        this.description = apiGame.description;
+        this.numberOfWishlists = apiGame.numberOfWishlists;
+        this.numberOfOwners = apiGame.numberOfOwners;
+    }
+}
+
 export namespace Api {
 
-    export type getGamesResponse = {
-        games: API_Game[],
-        count: number
-    }
-
     export async function getGames(
-        query: string | null,
-        startIndex?: number,
-        count?: number,
-        sortBy?: GameSortMethod,
-        price?: number,
-        genres?: Genre[],
-        platforms?: Platform[],
-    ): Promise<getGamesResponse> {
+        allGenres: Genre[],
+        allPlatforms: Platform[],
+        searchParams: {
+            query?: string,
+            startIndex?: number,
+            count?: number,
+            sortBy?: GameSortMethod,
+            price?: number,
+            creatorId?: number,
+            genres?: Genre[],
+            platforms?: Platform[],
+        }
+    ) {
 
         const params = new URLSearchParams();
+        const { query, startIndex, count, sortBy, price, creatorId, genres, platforms } = searchParams;
+
         if (query)
             params.set("q", query);
 
@@ -130,6 +162,9 @@ export namespace Api {
         if (price)
             params.set("price", Math.round(price * 100).toString());
 
+        if (creatorId)
+            params.set("creatorId", creatorId.toString());
+
         if (genres)
             for (const genre of genres)
                 params.append("genreIds", genre.genreId.toString());
@@ -138,11 +173,41 @@ export namespace Api {
             for (const platform of platforms)
                 params.append("platformIds", platform.platformId.toString());
 
+
         const response = await axios.get(`${BASE_URL}/games`, { params });
-        return {
-            games: response.data.games,
-            count: response.data.count
+        const data = response.data as {
+            games: API_GameList[],
+            count: number
         }
+
+        const genreMap = _makeGenreMap(allGenres);
+        const platformMap = _makePlatformsMap(allPlatforms);
+        const games = data.games.map(game => new GameList(game, genreMap, platformMap));
+        return {
+            games: games,
+            count: data.count
+        }
+    }
+
+    export async function getGameInfo(
+        gameId: number,
+        allGenres: Genre[],
+        allPlatforms: Platform[],
+    ) {
+        const response = await axios.get(`${BASE_URL}/games/${gameId}`);
+        const data = response.data as API_GameInfo;
+
+        const genreMap = _makeGenreMap(allGenres);
+        const platformMap = _makePlatformsMap(allPlatforms);
+        return new GameInfo(data, genreMap, platformMap);
+    }
+
+    function _makeGenreMap(allGenres: Genre[]) {
+        return new Map(allGenres.map(x => [x.genreId, x.name]));
+    }
+
+    function _makePlatformsMap(allPlatforms: Platform[]) {
+        return new Map(allPlatforms.map(x => [x.platformId, x.name]));
     }
 
     export async function getPlatforms() {
@@ -159,7 +224,7 @@ export namespace Api {
         return `${BASE_URL}/users/${userId}/image`;
     }
 
-    export function getGameImage(game: Game) {
-        return `${BASE_URL}/games/${game.gameId}/image`;
+    export function getGameImage(gameId: number) {
+        return `${BASE_URL}/games/${gameId}/image`;
     }
 }

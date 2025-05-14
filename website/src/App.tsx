@@ -2,11 +2,11 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import "./App.css";
-import Game from "./components/Game";
-import Games from "./components/Games";
-import Home from "./components/Home";
+import Game from "./pages/Game";
+import Games from "./pages/Games";
+import Home from "./pages/Home";
 import Navbar from "./components/NavBar";
-import NotFound from "./components/NotFound";
+import NotFound from "./pages/NotFound";
 
 const darkTheme = createTheme({
     palette: {
