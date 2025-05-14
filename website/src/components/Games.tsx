@@ -117,8 +117,8 @@ export default function Games() {
         [GameSortMethod.ALPHABETICAL_DESC, "Alphabetical (Descending)"],
         [GameSortMethod.PRICE_ASC, "Price (Ascending)"],
         [GameSortMethod.PRICE_DESC, "Price (Descending)"],
-        [GameSortMethod.CREATED_ASC, "Created (Ascending)"],
-        [GameSortMethod.CREATED_DESC, "Created (Descending)"],
+        [GameSortMethod.CREATED_ASC, "Creation Date (Ascending)"],
+        [GameSortMethod.CREATED_DESC, "Creation Date (Descending)"],
         [GameSortMethod.RATING_ASC, "Rating (Ascending)"],
         [GameSortMethod.RATING_DESC, "Rating (Descending)"],
     ];
