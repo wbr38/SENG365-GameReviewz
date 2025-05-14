@@ -18,6 +18,16 @@ export enum GameSortMethod {
     RATING_DESC = "RATING_DESC"
 }
 
+export interface Genre {
+    genreId: number;
+    name: string;
+}
+
+export interface Platform {
+    platformId: number;
+    name: string;
+}
+
 export interface API_Game {
     gameId: number;
     title: string;
@@ -98,7 +108,9 @@ export namespace Api {
         query: string | null,
         startIndex?: number,
         count?: number,
-        sortBy?: GameSortMethod
+        sortBy?: GameSortMethod,
+        genres?: Genre[],
+        platforms?: Platform[]
     ): Promise<getGamesResponse> {
 
         const params = new URLSearchParams();
@@ -114,6 +126,14 @@ export namespace Api {
         if (sortBy)
             params.set("sortBy", sortBy);
 
+        if (genres)
+            for (const genre of genres)
+                params.append("genreIds", genre.genreId.toString());
+
+        if (platforms)
+            for (const platform of platforms)
+                params.append("platformIds", platform.platformId.toString());
+
         const response = await axios.get(`${BASE_URL}/games`, { params });
         return {
             games: response.data.games,
@@ -123,22 +143,11 @@ export namespace Api {
 
     export async function getPlatforms() {
         const response = await axios.get(`${BASE_URL}/games/platforms`);
-
-        interface Platform {
-            platformId: number;
-            name: string;
-        }
-
         return response.data as Platform[];
     }
 
     export async function getGenres() {
         const response = await axios.get(`${BASE_URL}/games/genres`);
-
-        interface Genre {
-            genreId: number;
-            name: string;
-        }
         return response.data as Genre[];
     }
 

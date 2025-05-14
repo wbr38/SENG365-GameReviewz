@@ -1,8 +1,8 @@
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { Box, Button, CardMedia, FormControl, Grid, InputLabel, MenuItem, Pagination, Select, Stack, Typography } from "@mui/material";
+import { Box, Button, CardMedia, Checkbox, FormControl, Grid, InputLabel, ListItemText, MenuItem, OutlinedInput, Pagination, Select, SelectChangeEvent, Stack, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Api, Game, GameSortMethod } from "../services/api.service";
+import { Api, Game, GameSortMethod, Genre, Platform } from "../services/api.service";
 import * as S from "../styles/Game.styles";
 
 function GameCards(props: { games: Game[], count: number }) {
@@ -48,7 +48,7 @@ function GameCards(props: { games: Game[], count: number }) {
                                     <S.GameDetail name="Creation Date" value={game.creationDate()} />
                                     <S.GameDetail name="Genre" value={game.getGenreName()} />
                                     <S.GameDetail name="Creator" value={game.creatorName()} />
-                                    <S.GameDetail name="Platforms" value={"Mobile, Nintendo Switch, PC, Playstation 5"} />
+                                    <S.GameDetail name="Platforms" value={game.getPlatforms()} />
 
                                     {/* Price & Button */}
                                     <Box
@@ -101,23 +101,93 @@ export default function Games() {
 
     const [gamesCount, setGamesCount] = useState(0);
     const [games, setGames] = useState<Game[]>([]);
+    const [allGenres, setAllGenres] = useState<Genre[] | null>(null);
+    const [allPlatforms, setAllPlatforms] = useState<Platform[] | null>(null);
     const [loading, setLoading] = useState(false);
-    const [gameSortMethod, setGameSortMethod] = useState(GameSortMethod.CREATED_ASC);
 
+    const [gameSortMethod, setGameSortMethod] = useState(GameSortMethod.CREATED_ASC);
+    const gameSortOptions: [GameSortMethod, string][] = [
+        [GameSortMethod.ALPHABETICAL_ASC, "Alphabetical (Ascending)"],
+        [GameSortMethod.ALPHABETICAL_DESC, "Alphabetical (Descending)"],
+        [GameSortMethod.PRICE_ASC, "Price (Ascending)"],
+        [GameSortMethod.PRICE_DESC, "Price (Descending)"],
+        [GameSortMethod.CREATED_ASC, "Created (Ascending)"],
+        [GameSortMethod.CREATED_DESC, "Created (Descending)"],
+        [GameSortMethod.RATING_ASC, "Rating (Ascending)"],
+        [GameSortMethod.RATING_DESC, "Rating (Descending)"],
+    ];
+
+    const SELECT_ALL = "__select_all__";
+    const SELECT_NONE = "__select_none__";
+    const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+    const updateSelectedGenres = (value: string | string[]) => {
+        if (!allGenres) return;
+
+        const names = typeof value === "string" ? value.split(",") : value;
+        if (names.includes(SELECT_ALL))
+            return setSelectedGenres(allGenres.map(x => x.name));
+
+        if (names.includes(SELECT_NONE))
+            return setSelectedGenres([]);
+
+        setSelectedGenres(names);
+    };
+
+    const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
+    const updateSelectedPlatforms = (value: string | string[]) => {
+        if (!allPlatforms) return;
+
+        const names = typeof value === "string" ? value.split(",") : value;
+        if (names.includes(SELECT_ALL))
+            return setSelectedPlatforms(allPlatforms.map(x => x.name));
+
+        if (names.includes(SELECT_NONE))
+            return setSelectedPlatforms([]);
+
+        setSelectedPlatforms(names);
+    };
+
+    // Fetch allGenres and allPlatforms once, as it probably won't change between requests
     useEffect(() => {
-        async function fetchAll() {
+        async function fetchGenresAndPlatforms() {
+            try {
+                const [genresResponse, platformsResponse] = await Promise.all([
+                    Api.getGenres(),
+                    Api.getPlatforms(),
+                ]);
+                setAllGenres(genresResponse);
+                setAllPlatforms(platformsResponse);
+
+                // By default all genres and all platforms selected
+                setSelectedGenres(genresResponse.map(x => x.name));
+                setSelectedPlatforms(platformsResponse.map(x => x.name));
+            } catch (err) {
+                console.log("Error fetching genres and platforms:", err);
+            }
+        }
+
+        // Only fetch once
+        if (!allGenres || !allPlatforms)
+            fetchGenresAndPlatforms();
+    }, []); // empty dependency array to only call once on page load
+
+    // Fetch games
+    useEffect(() => {
+        async function fetchGames() {
+            // Genres or platforms hasn't loaded yet
+            if (!allGenres || !allPlatforms) return;
+
             setLoading(true);
             try {
                 const startIndex = (page - 1) * perPage;
-                const [gamesResponse, genresResponse, platformsResponse] = await Promise.all([
-                    Api.getGames(search, startIndex, perPage, gameSortMethod),
-                    Api.getGenres(),
-                    Api.getPlatforms()
-                ]);
+
+                const _selectedGenres = allGenres.filter(x => selectedGenres.includes(x.name));
+                const _selectedPlatforms = allPlatforms.filter(x => selectedPlatforms.includes(x.name));
+                const gamesResponse = await Api.getGames(search, startIndex, perPage, gameSortMethod, _selectedGenres, _selectedPlatforms);
 
                 // Construct Game instances with mapping
-                const genreMap = new Map(genresResponse.map(x => [x.genreId, x.name]));
-                const platformMap = new Map(platformsResponse.map(x => [x.platformId, x.name]));
+                const genreMap = new Map(allGenres.map(x => [x.genreId, x.name]));
+                const platformMap = new Map(allPlatforms.map(x => [x.platformId, x.name]));
                 const games = gamesResponse.games.map(game => new Game(game, genreMap, platformMap));
 
                 setGamesCount(gamesResponse.count);
@@ -131,15 +201,16 @@ export default function Games() {
             }
         }
 
-        fetchAll();
-    }, [search, page, perPage, gameSortMethod]);
+        fetchGames();
+    }, [search, page, perPage, gameSortMethod, selectedGenres, selectedPlatforms, allGenres, allPlatforms]);
 
     return (
         <div>
+            {/* {loading && <p>Loading...</p>} */}
 
-            {loading && <p>Loading...</p>}
+            <pre>{gamesCount} Games</pre>
 
-            {/* Sorting */}
+            {/* Sorting & Filters */}
             <div
                 style={{
                     display: "flex",
@@ -147,6 +218,7 @@ export default function Games() {
                     marginBottom: "1em"
                 }}
             >
+                {/* Sort */}
                 <FormControl sx={{ minWidth: 160, mr: "2em" }} size="small">
                     <InputLabel>Order By</InputLabel>
                     <Select
@@ -154,14 +226,71 @@ export default function Games() {
                         onChange={(event) => setGameSortMethod(event.target.value)}
                         label="Order by"
                     >
-                        <MenuItem value={GameSortMethod.ALPHABETICAL_ASC}>Alphabetical (Ascending)</MenuItem>
-                        <MenuItem value={GameSortMethod.ALPHABETICAL_DESC}>Alphabetical (Descending)</MenuItem>
-                        <MenuItem value={GameSortMethod.PRICE_ASC}>Price (Ascending)</MenuItem>
-                        <MenuItem value={GameSortMethod.PRICE_DESC}>Price (Descending)</MenuItem>
-                        <MenuItem value={GameSortMethod.CREATED_ASC}>Created (Ascending)</MenuItem>
-                        <MenuItem value={GameSortMethod.CREATED_DESC}>Created (Descending)</MenuItem>
-                        <MenuItem value={GameSortMethod.RATING_ASC}>Rating (Ascending)</MenuItem>
-                        <MenuItem value={GameSortMethod.RATING_DESC}>Rating (Descending)</MenuItem>
+                        {gameSortOptions.map(([value, label]) => (
+                            <MenuItem key={value} value={value}>
+                                {label}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+
+                {/* Genre */}
+                <FormControl sx={{ minWidth: 160, mr: "2em", textAlign: "left" }} size="small">
+                    <InputLabel>Genres</InputLabel>
+                    <Select
+                        multiple
+                        value={selectedGenres}
+                        onChange={(event) => updateSelectedGenres(event.target.value)}
+                        input={<OutlinedInput label="Tag" />}
+                        renderValue={() => "Genres"}
+                    >
+                        {/* Select All */}
+                        <MenuItem value={SELECT_ALL}>
+                            <ListItemText primary="Select All" />
+                        </MenuItem>
+
+                        {/* Select All */}
+                        <MenuItem value={SELECT_NONE}>
+                            <ListItemText primary="Select None" />
+                        </MenuItem>
+
+                        {/* Actual genres */}
+                        {allGenres?.map((genre) => (
+                            <MenuItem key={genre.genreId} value={genre.name}>
+                                <Checkbox checked={selectedGenres.includes(genre.name)} />
+                                <ListItemText primary={genre.name} />
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+
+                {/* Platform */}
+                <FormControl sx={{ minWidth: 160, mr: "2em", textAlign: "left" }} size="small">
+                    <InputLabel>Platforms</InputLabel>
+                    <Select
+                        multiple
+                        value={selectedPlatforms}
+                        onChange={(event) => updateSelectedPlatforms(event.target.value)}
+                        input={<OutlinedInput label="Tag" />}
+                        renderValue={() => "Platforms"}
+                    >
+                        {/* Select All */}
+                        <MenuItem value={SELECT_ALL}>
+                            <ListItemText primary="Select All" />
+                        </MenuItem>
+
+                        {/* Select All */}
+                        <MenuItem value={SELECT_NONE}>
+                            <ListItemText primary="Select None" />
+                        </MenuItem>
+
+                        {/* Actual platforms */}
+                        {allPlatforms?.map((platform) => (
+                            <MenuItem key={platform.platformId} value={platform.name}>
+                                <Checkbox checked={selectedPlatforms.includes(platform.name)} />
+                                <ListItemText primary={platform.name} />
+                            </MenuItem>
+                        ))}
                     </Select>
                 </FormControl>
             </div>
