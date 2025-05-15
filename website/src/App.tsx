@@ -7,6 +7,7 @@ import Games from "./pages/Games";
 import Home from "./pages/Home";
 import Navbar from "./components/NavBar";
 import NotFound from "./pages/NotFound";
+import Register from "./pages/Register";
 
 const darkTheme = createTheme({
     palette: {
@@ -28,6 +29,7 @@ export default function App() {
                             <Route path="/" element={<Home />} />
                             <Route path="/games" element={<Games />} />
                             <Route path="/games/:id" element={<Game />} />
+                            <Route path="/register" element={<Register />} />
                         </Routes>
                     </div>
                 </Router>

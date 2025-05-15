@@ -309,4 +309,18 @@ export namespace Api {
         const data = response.data as API_Review[];
         return data.map(x => new Review(x));
     }
+
+    export async function register(
+        data: {
+            email: string,
+            firstName: string,
+            lastName: string,
+            password: string
+        }
+    ) {
+        const response = await axios.post(`${BASE_URL}/users/register`, data);
+        return response.data as {
+            userId: number
+        };
+    }
 }
