@@ -1,11 +1,11 @@
-import { useParams } from "react-router-dom";
-import { Api, GameInfo, GameList, Genre, Platform } from "../services/api.service";
-import { Pagination, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
-import GameControllerIcon from "@mui/icons-material/VideogameAsset";
 import GiftIcon from '@mui/icons-material/CardGiftcard';
-import Games from "./Games";
+import GameControllerIcon from "@mui/icons-material/VideogameAsset";
+import { Card, CardContent, CardHeader, Pagination, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import GameCard from "../components/GameCard";
+import UserAvatar from "../components/UserAvatar";
+import { Api, GameInfo, GameList, Genre, Platform, Review } from "../services/api.service";
 
 const iconStyle = {
     verticalAlign: "middle",
@@ -73,15 +73,55 @@ function SimilarGames(props: {
     );
 }
 
+function ReviewsSection(props: { reviews: Review[] }) {
+    const { reviews } = props;
+    return (
+        <div>
+            <Typography gutterBottom variant="h4" component="div">
+                Reviews
+            </Typography>
+
+            {/* ReviewCard */}
+            <div>
+                {reviews.map((review) => (
+                    <Card sx={{
+                        minWidth: 275,
+                        textAlign: "left",
+                        margin: "1em 0"
+                    }}>
+                        <CardHeader
+                            avatar={
+                                <UserAvatar user={review.reviewer} size={40} />
+                            }
+                            title={review.reviewerName()}
+                            subheader={review.timestampStr()}
+                        />
+
+                        <CardContent sx={{ paddingTop: 0 }}>
+                            <Typography variant="h5" component="div">
+                                {review.rating}/10
+                            </Typography>
+
+                            <Typography variant="body2">
+                                {review.review}
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
+        </div>
+    );
+}
+
 export default function Game() {
     const params = useParams();
 
     const gameId = Number(params.id!);
 
     const [game, setGame] = useState<GameInfo | null>(null);
-    const [gameCreatorImage, setGameCreatorImage] = useState("");
     const [similarGamesPage, setSimilarGamesPage] = useState(1);
     const [similarGames, setSimilarGames] = useState<GameList[] | null>(null);
+    const [reviews, setReviews] = useState<Review[] | null>(null);
 
     const [allGenres, setAllGenres] = useState<Genre[] | null>(null);
     const [allPlatforms, setAllPlatforms] = useState<Platform[] | null>(null);
@@ -114,7 +154,6 @@ export default function Game() {
 
             try {
                 const gameResponse = await Api.getGameInfo(gameId, allGenres, allPlatforms);
-                setGameCreatorImage(Api.getUserImage(gameResponse.creatorId));
                 setGame(gameResponse);
             } catch (error) {
                 // TODO: mui snackbar (for 404)
@@ -168,6 +207,17 @@ export default function Game() {
 
         fetchSimilarGames();
     }, [gameId, allGenres, allPlatforms, game])
+
+    // Fetch Reviews
+    useEffect(() => {
+        async function fetchReviews() {
+            if (!game) return;
+            const reviews = await Api.getReviews(game.gameId);
+            setReviews(reviews);
+        }
+
+        fetchReviews();
+    }, [game]);
 
     if (isNaN(gameId))
         return <pre>Invalid game ID: {params.id}</pre>
@@ -241,12 +291,7 @@ export default function Game() {
                 gridColumn: 1,
                 gridRow: 2,
             }}>
-                <img
-                    style={imageStyle}
-                    src={gameCreatorImage}
-                    alt=""
-                    onError={(event) => setGameCreatorImage("https://placehold.co/200x200")}
-                />
+                <UserAvatar user={game.creator} size={280} variant="square" />
                 <p style={{ margin: 0 }}>Creator: {game.creatorName()}</p>
             </div>
 
@@ -254,21 +299,17 @@ export default function Game() {
             <div style={{
             }}
             >
-                <p>Rating</p>
+                <p>Overall Rating</p>
                 <Typography gutterBottom variant="h2" component="div" style={{ margin: 0 }}>
                     {game.rating}
                 </Typography>
             </div>
 
-            {/* Ratings (right) */}
-            <div style={{
-                textAlign: "left"
-            }}
-            >
-                <Typography gutterBottom variant="h4" component="div">
-                    Reviews
-                </Typography>
-            </div>
+            {
+                reviews &&
+                <ReviewsSection reviews={reviews} />
+            }
+
         </div>
     );
 }

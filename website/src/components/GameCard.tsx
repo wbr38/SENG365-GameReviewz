@@ -2,6 +2,7 @@ import { styled, Card, CardContent, Stack, Typography, CardMedia, Box, Button } 
 import { Link } from "react-router-dom";
 import { Api, GameList } from "../services/api.service";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import UserAvatar from "./UserAvatar";
 
 export const SyledCard = styled(Card)(({ theme }) => ({
     display: "flex",
@@ -34,7 +35,7 @@ export function GameDetail(props: { name: string, children: React.ReactNode }) {
             <Typography variant="body2" color="gray">
                 {name}
             </Typography>
-            <Typography variant="body2" sx={{ display: "flex", textAlign: "right" }}>
+            <Typography variant="body2" sx={{ display: "flex", textAlign: "right", gap: "0.5ch" }}>
                 {children}
             </Typography>
         </Stack>
@@ -82,7 +83,7 @@ export default function GameCard(props: { game: GameList }) {
                         <GameDetail name="Genre">{game.getGenreName()}</GameDetail>
 
                         <GameDetail name="Creator" >
-                            <img style={{ height: "20px", marginRight: "4px" }} src={Api.getUserImage(game.creatorId)} alt="" />
+                            <UserAvatar user={game.creator} size={18} />
                             {game.creatorName()}
                         </GameDetail>
 

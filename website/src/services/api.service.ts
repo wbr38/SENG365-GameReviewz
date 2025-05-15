@@ -28,6 +28,25 @@ export interface Platform {
     name: string;
 }
 
+export class User {
+    
+    constructor(
+        public userId: number,
+        public firstName: string,
+        public lastName: string
+    ) {
+
+    }
+
+    public initials(): string {
+        return this.firstName[0] + this.lastName[0];
+    }
+
+    public fullName(): string {
+        return this.firstName + " " + this.lastName;
+    }
+}
+
 // Values when querying the API for multiple /games/
 type API_GameList = {
     gameId: number;
@@ -55,6 +74,8 @@ export class GameList implements API_GameList {
     public rating: number;
     public platformIds: number[];
 
+    public creator: User;
+
     constructor(
         apiGame: API_GameList,
         protected genreMap: Map<number, string>,
@@ -70,6 +91,8 @@ export class GameList implements API_GameList {
         this.creatorLastName = apiGame.creatorLastName;
         this.rating = apiGame.rating;
         this.platformIds = apiGame.platformIds;
+
+        this.creator = new User(this.creatorId, this.creatorFirstName, this.creatorLastName);
     }
 
     public get creationDate(): string {
@@ -107,6 +130,57 @@ type API_GameInfo = API_GameList & {
     description: string,
     numberOfWishlists: number,
     numberOfOwners: number
+}
+
+type API_Review = {
+    reviewerId: number;
+    reviewerFirstName: string;
+    reviewerLastName: string;
+    rating: number;
+    review: string;
+    timestamp: string;
+}
+
+export class Review implements API_Review {
+    public reviewerId: number;
+    public reviewerFirstName: string;
+    public reviewerLastName: string;
+    public rating: number;
+    public review: string;
+    public timestamp: string;
+
+    public reviewer: User;
+    private _timestamp: Date;
+
+    constructor(
+        apiReview: API_Review
+    ) { 
+        this.reviewerId = apiReview.reviewerId;
+        this.reviewerFirstName = apiReview.reviewerFirstName;
+        this.reviewerLastName = apiReview.reviewerLastName;
+        this.rating = apiReview.rating;
+        this.review = apiReview.review;
+        this.timestamp = apiReview.timestamp;
+        this._timestamp = new Date(this.timestamp);
+
+        this.reviewer = new User(
+            this.reviewerId,
+            this.reviewerFirstName,
+            this.reviewerLastName
+        );
+    }
+
+    public timestampStr(): string {
+        return this._timestamp.toLocaleDateString("en-GB", {
+            year: "numeric",
+            month: "long",
+            day: "numeric"
+        });
+    }
+
+    public reviewerName(): string {
+        return this.reviewerFirstName + " " + this.reviewerLastName;
+    }
 }
 
 // Game details when API was queried for a single /games/{id}
@@ -226,5 +300,13 @@ export namespace Api {
 
     export function getGameImage(gameId: number) {
         return `${BASE_URL}/games/${gameId}/image`;
+    }
+
+    export async function getReviews(
+        gameId: number,
+    ) {
+        const response = await axios.get(`${BASE_URL}/games/${gameId}/reviews`);
+        const data = response.data as API_Review[];
+        return data.map(x => new Review(x));
     }
 }
