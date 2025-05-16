@@ -2,10 +2,12 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import "./App.css";
+import Navbar from "./components/NavBar";
 import Game from "./pages/Game";
 import Games from "./pages/Games";
 import Home from "./pages/Home";
-import Navbar from "./components/NavBar";
+import LogIn from "./pages/LogIn";
+import LogOut from "./pages/LogOut";
 import NotFound from "./pages/NotFound";
 import Register from "./pages/Register";
 
@@ -30,6 +32,8 @@ export default function App() {
                             <Route path="/games" element={<Games />} />
                             <Route path="/games/:id" element={<Game />} />
                             <Route path="/register" element={<Register />} />
+                            <Route path="/logout" element={<LogOut />} />
+                            <Route path="/login" element={<LogIn />} />
                         </Routes>
                     </div>
                 </Router>

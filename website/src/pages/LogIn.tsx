@@ -1,31 +1,26 @@
-import { Alert, Box, Button, Card, FormControl, Snackbar, Stack, TextField, Typography } from "@mui/material";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { joinErrorMessages, parseAjvErrors } from "../services/ajv.parser";
+import { Typography, Box, FormControl, TextField, Button, Stack, Card, Snackbar, Alert } from "@mui/material";
+import { useEffect, useState } from "react";
 import { Api } from "../services/api.service";
 import { useAuthStore } from "../store/auth-store";
+import { useNavigate } from "react-router-dom";
+import { joinErrorMessages, parseAjvErrors } from "../services/ajv.parser";
 
-export default function Register() {
+export default function LogIn() {
 
     const navigate = useNavigate();
     const setAuth = useAuthStore((state) => state.setAuth);
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
+
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    // TODO: Remove after testing
-    // useEffect(() => {
-    //     setFirstName("Steve");
-    //     setLastName("Steve");
-    //     setEmail("steve.jobs@apple.com");
-    //     setPassword("ddddddddddddddddddddddddddd");
-    // }, []);
-
-    const [firstNameErrorMsg, setFirstNameErrorMsg] = useState<string[]>([]);
-    const [lastNameErrorMsg, setLastNameErrorMsg] = useState<string[]>([]);
     const [emailErrorMsg, setEmailErrorMsg] = useState<string[]>([]);
     const [passwordErrorMsg, setPasswordErrorMsg] = useState<string[]>([]);
+
+    // TODO: (10 Remove after testing
+    useEffect(() => {
+        setEmail("user@bruno.example");
+        setPassword("password");
+    }, []);
 
     const [snackOpen, setSnackOpen] = useState(false)
     const [snackMessage, setSnackMessage] = useState("")
@@ -36,26 +31,20 @@ export default function Register() {
         setSnackOpen(false);
     };
 
-    const ajvErrors: { [prefix: string]: typeof setFirstNameErrorMsg } = {
-        "data/firstName": setFirstNameErrorMsg,
-        "data/lastName": setLastNameErrorMsg,
+    const ajvErrors: { [prefix: string]: typeof setEmailErrorMsg } = {
         "data/email": setEmailErrorMsg,
         "data/password": setPasswordErrorMsg
     };
 
-    async function tryRegister() {
+    async function tryLogin() {
         try {
-            const { userId } = await Api.register({ firstName, lastName, password, email });
-
-            // Try login
-            const loginResponse = await Api.login({email, password});
+            const {userId, token} = await Api.login({email, password});
             setAuth({
-                token: loginResponse.token,
+                token,
                 userId
             });
             navigate("/"); // go to home page
         } catch (error: any) {
-
             try {
                 parseAjvErrors(error, ajvErrors);
             } catch (_) {
@@ -78,7 +67,7 @@ export default function Register() {
                 }}>
                     {/* Title */}
                     <Typography variant="h4" mb={"1em"}>
-                        Register
+                        Log In
                     </Typography>
 
                     {/* Forms */}
@@ -89,30 +78,6 @@ export default function Register() {
                             gap: "1.5em"
                         }}
                     >
-                        {/* First Name */}
-                        <FormControl>
-                            <TextField
-                                placeholder="First Name"
-                                value={firstName}
-                                onChange={(event) => setFirstName(event.target.value)}
-                                error={firstNameErrorMsg.length > 0}
-                                helperText={joinErrorMessages(firstNameErrorMsg)}
-                                color={!!firstNameErrorMsg ? "error" : "primary"}
-                            />
-                        </FormControl>
-
-                        {/* Last Name */}
-                        <FormControl>
-                            <TextField
-                                placeholder="Last Name"
-                                value={lastName}
-                                onChange={(event) => setLastName(event.target.value)}
-                                error={lastNameErrorMsg.length > 0}
-                                helperText={joinErrorMessages(lastNameErrorMsg)}
-                                color={!!lastNameErrorMsg ? "error" : "primary"}
-                            />
-                        </FormControl>
-
                         {/* Email */}
                         <FormControl>
                             <TextField
@@ -141,9 +106,9 @@ export default function Register() {
                         <Button
                             type="submit"
                             variant="contained"
-                            onClick={tryRegister}
+                            onClick={tryLogin}
                         >
-                            Register
+                            Login
                         </Button>
 
                     </Box>

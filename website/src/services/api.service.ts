@@ -323,4 +323,17 @@ export namespace Api {
             userId: number
         };
     }
+
+    export async function login(
+        data: {
+            email: string,
+            password: string
+        }
+    ) {
+        const response = await axios.post(`${BASE_URL}/users/login`, data);
+        return response.data as {
+            userId: number,
+            token: string
+        };
+    }
 }
