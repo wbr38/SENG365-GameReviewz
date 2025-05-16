@@ -16,12 +16,6 @@ export default function LogIn() {
     const [emailErrorMsg, setEmailErrorMsg] = useState<string[]>([]);
     const [passwordErrorMsg, setPasswordErrorMsg] = useState<string[]>([]);
 
-    // TODO: (10 Remove after testing
-    useEffect(() => {
-        setEmail("user@bruno.example");
-        setPassword("password");
-    }, []);
-
     const [snackOpen, setSnackOpen] = useState(false)
     const [snackMessage, setSnackMessage] = useState("")
     const handleSnackClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
@@ -55,6 +49,20 @@ export default function LogIn() {
             }
         }
     }
+    
+    // Redirect to home page if already logged in
+    useEffect(() => {
+        const { auth } = useAuthStore.getState();
+        const isLoggedIn = auth.token !== null && auth.userId !== null;
+        if (isLoggedIn)
+            navigate("/");
+    }, []);
+
+    // TODO: (10 Remove after testing
+    useEffect(() => {
+        setEmail("user@bruno.example");
+        setPassword("password");
+    }, []);
 
     return (
         <div>
