@@ -1,4 +1,5 @@
 import axios from "axios";
+import { useAuthStore } from "../store/auth-store";
 
 export enum ApiBaseUrl {
     LocalHost = "http://localhost:4941/api/v1",
@@ -29,7 +30,7 @@ export interface Platform {
 }
 
 export class User {
-    
+
     constructor(
         public userId: number,
         public firstName: string,
@@ -154,7 +155,7 @@ export class Review implements API_Review {
 
     constructor(
         apiReview: API_Review
-    ) { 
+    ) {
         this.reviewerId = apiReview.reviewerId;
         this.reviewerFirstName = apiReview.reviewerFirstName;
         this.reviewerLastName = apiReview.reviewerLastName;
@@ -202,6 +203,21 @@ export class GameInfo extends GameList implements API_GameInfo {
 }
 
 export namespace Api {
+
+    function getAuth() {
+        const { auth } = useAuthStore.getState();
+        const isLoggedIn = auth.token !== null && auth.userId !== null;
+        if (!isLoggedIn)
+            throw new Error("User is not logged in");
+
+        return {
+            token: auth.token!,
+            userId: auth.userId!,
+            authHeaders: {
+                "X-Authorization": auth.token!
+            }
+        }
+    }
 
     export async function getGames(
         allGenres: Genre[],
@@ -335,5 +351,21 @@ export namespace Api {
             userId: number,
             token: string
         };
+    }
+
+    export async function setUserImage(
+        image: File
+    ) {
+        const { userId, authHeaders } = getAuth();
+        const response = await axios.put(
+            `${BASE_URL}/users/${userId}/image`,
+            image,
+            {
+                headers: {
+                    ...authHeaders,
+                    "Content-Type": image.type,
+                }
+            }
+        );
     }
 }

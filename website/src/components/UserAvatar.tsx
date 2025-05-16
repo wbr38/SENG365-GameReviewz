@@ -10,7 +10,7 @@ export default function UserAvatar(props: {
     return (
         <Avatar
             alt={user.fullName()}
-            src={Api.getUserImage(user.userId) + "aasd"}
+            src={Api.getUserImage(user.userId)}
             variant={variant ?? "circular"}
             sx={{
                 width: size,

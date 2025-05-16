@@ -11,7 +11,7 @@ import { useAuthStore } from '../store/auth-store';
 export default function NavBar() {
 
     const authState = useAuthStore((state) => state.auth);
-    const loggedIn = authState.token !== null && authState.userId !== null;
+    const isLoggedIn = authState.token !== null && authState.userId !== null;
 
     const navigate = useNavigate();
     function handleSearch(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -27,7 +27,7 @@ export default function NavBar() {
         { name: "Games", link: "/games" },
     ]
 
-    if (!loggedIn) {
+    if (!isLoggedIn) {
         navLinks.push(
             { name: "Log In", link: "/login" },
             { name: "Register", link: "/register" },

@@ -1,5 +1,6 @@
-import { Alert, Box, Button, Card, FormControl, Snackbar, Stack, TextField, Typography } from "@mui/material";
-import { useState } from "react";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import { Alert, Avatar, Box, Button, Card, FormControl, Snackbar, Stack, TextField, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { joinErrorMessages, parseAjvErrors } from "../services/ajv.parser";
 import { Api } from "../services/api.service";
@@ -13,13 +14,22 @@ export default function Register() {
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [profileImage, setProfileImage] = useState<File | null>(null);
+
+    // Redirect to home page if already logged in
+    useEffect(() => {
+        const { auth } = useAuthStore.getState();
+        const isLoggedIn = auth.token !== null && auth.userId !== null;
+        if (isLoggedIn)
+            navigate("/");
+    }, []);
 
     // TODO: Remove after testing
     // useEffect(() => {
-    //     setFirstName("Steve");
-    //     setLastName("Steve");
-    //     setEmail("steve.jobs@apple.com");
-    //     setPassword("ddddddddddddddddddddddddddd");
+    //     setFirstName("Ads");
+    //     setLastName("Ads");
+    //     setEmail("a@b.com");
+    //     setPassword("ACoolPassword");
     // }, []);
 
     const [firstNameErrorMsg, setFirstNameErrorMsg] = useState<string[]>([]);
@@ -48,11 +58,16 @@ export default function Register() {
             const { userId } = await Api.register({ firstName, lastName, password, email });
 
             // Try login
-            const loginResponse = await Api.login({email, password});
+            const loginResponse = await Api.login({ email, password });
             setAuth({
                 token: loginResponse.token,
                 userId
             });
+
+            // Upload profile picture
+            if (profileImage)
+                await Api.setUserImage(profileImage);
+
             navigate("/"); // go to home page
         } catch (error: any) {
 
@@ -137,6 +152,42 @@ export default function Register() {
                                 color={!!passwordErrorMsg ? "error" : "primary"}
                             />
                         </FormControl>
+
+                        {/* Profile Image Preview */}
+                        {profileImage &&
+                            <Avatar
+                                alt="Profile Image Preview"
+                                src={URL.createObjectURL(profileImage)}
+                                variant="rounded"
+                                sx={{
+                                    width: "10em",
+                                    height: "10em",
+                                    margin: "0 auto"
+                                }}
+                            />
+                        }
+
+                        {/* Profile Image Upload */}
+                        <Button
+                            component="label"
+                            variant="outlined"
+                            startIcon={<CloudUploadIcon />}
+                        >
+                            Upload profile image
+                            <input
+                                type="file"
+                                accept="image/jpeg, image/png, image/gif"
+                                onChange={(event) => {
+                                    const file = event.target.files?.item(0);
+                                    if (file)
+                                        setProfileImage(file);
+                                }}
+                                style={{
+                                    width: 0,
+                                    height: 0
+                                }}
+                            />
+                        </Button>
 
                         <Button
                             type="submit"
