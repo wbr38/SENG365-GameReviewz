@@ -1,5 +1,6 @@
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import { Alert, Avatar, Box, Button, Card, FormControl, Snackbar, Stack, TextField, Typography } from "@mui/material";
+import { Alert, Avatar, Box, Button, Card, FormControl, IconButton, Snackbar, Stack, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { joinErrorMessages, parseAjvErrors } from "../services/ajv.parser";
@@ -16,21 +17,7 @@ export default function Register() {
     const [password, setPassword] = useState("");
     const [profileImage, setProfileImage] = useState<File | null>(null);
 
-    // Redirect to home page if already logged in
-    useEffect(() => {
-        const { auth } = useAuthStore.getState();
-        const isLoggedIn = auth.token !== null && auth.userId !== null;
-        if (isLoggedIn)
-            navigate("/");
-    }, []);
-
-    // TODO: Remove after testing
-    // useEffect(() => {
-    //     setFirstName("Ads");
-    //     setLastName("Ads");
-    //     setEmail("a@b.com");
-    //     setPassword("ACoolPassword");
-    // }, []);
+    const [showPassword, setShowPassword] = useState(false);
 
     const [firstNameErrorMsg, setFirstNameErrorMsg] = useState<string[]>([]);
     const [lastNameErrorMsg, setLastNameErrorMsg] = useState<string[]>([]);
@@ -81,6 +68,22 @@ export default function Register() {
             }
         }
     }
+
+    // Redirect to home page if already logged in
+    useEffect(() => {
+        const { auth } = useAuthStore.getState();
+        const isLoggedIn = auth.token !== null && auth.userId !== null;
+        if (isLoggedIn)
+            navigate("/");
+    }, []);
+
+    // TODO: Remove after testing
+    // useEffect(() => {
+    //     setFirstName("Ads");
+    //     setLastName("Ads");
+    //     setEmail("a@b.com");
+    //     setPassword("ACoolPassword");
+    // }, []);
 
     return (
         <div>
@@ -144,12 +147,24 @@ export default function Register() {
                         <FormControl>
                             <TextField
                                 placeholder="Password"
-                                type="password"
+                                type={showPassword ? "text" : "password"}
                                 value={password}
                                 onChange={(event) => setPassword(event.target.value)}
                                 error={passwordErrorMsg.length > 0}
                                 helperText={joinErrorMessages(passwordErrorMsg)}
                                 color={!!passwordErrorMsg ? "error" : "primary"}
+                                slotProps={{
+                                    input: {
+                                        // Toggle Visibility
+                                        endAdornment: (
+                                            <IconButton
+                                                onClick={() => setShowPassword((value) => !value)}
+                                            >
+                                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                                            </IconButton>
+                                        )
+                                    },
+                                }}
                             />
                         </FormControl>
 
