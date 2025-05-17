@@ -48,6 +48,17 @@ export class User {
     }
 }
 
+export class LoggedInUser extends User {
+    constructor(
+        public userId: number,
+        public firstName: string,
+        public lastName: string,
+        public email: string
+    ) {
+        super(userId, firstName, lastName);
+    }
+}
+
 // Values when querying the API for multiple /games/
 type API_GameList = {
     gameId: number;
@@ -380,6 +391,55 @@ export namespace Api {
                 password: newPassword,
                 currentPassword
             },
+            {
+                headers: {
+                    ...authHeaders,
+                }
+            }
+        );
+    }
+
+    export async function getLoggedInUser() {
+        const { userId, authHeaders } = getAuth();
+        const response = await axios.get(
+            `${BASE_URL}/users/${userId}`,
+            {
+                headers: {
+                    ...authHeaders,
+                }
+            }
+        );
+
+        const data = response.data as {
+            firstName: string,
+            lastName: string,
+            email: string
+        };
+
+        return new LoggedInUser(userId, data.firstName, data.lastName, data.email);
+    }
+
+    export async function editLoggedInUser(data: {
+        firstName?: string,
+        lastName?: string,
+        email?: string
+    }) {
+        const { userId, authHeaders } = getAuth();
+        const response = await axios.patch(
+            `${BASE_URL}/users/${userId}`,
+            data,
+            {
+                headers: {
+                    ...authHeaders,
+                }
+            }
+        );
+    }
+
+    export async function removeUserImage() {
+        const { userId, authHeaders } = getAuth();
+        const response = await axios.delete(
+            `${BASE_URL}/users/${userId}/image`,
             {
                 headers: {
                     ...authHeaders,

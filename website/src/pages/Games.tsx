@@ -254,7 +254,7 @@ export default function Games() {
 
             <Grid container spacing={2} columns={4} justifyContent={"center"}>
                 {games.map((game) =>
-                    <GameCard key={game.gameId} game={game}/>
+                    <GameCard key={game.gameId} game={game} />
                 )}
             </Grid>
 

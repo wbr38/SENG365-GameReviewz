@@ -1,8 +1,9 @@
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import { Alert, Avatar, Box, Button, Card, FormControl, IconButton, Snackbar, Stack, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, Card, FormControl, IconButton, Snackbar, Stack, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import UserAvatar from "../components/UserAvatar";
 import { joinErrorMessages, parseAjvErrors } from "../services/ajv.parser";
 import { Api } from "../services/api.service";
 import { useAuthStore } from "../store/auth-store";
@@ -170,15 +171,10 @@ export default function Register() {
 
                         {/* Profile Image Preview */}
                         {profileImage &&
-                            <Avatar
-                                alt="Profile Image Preview"
-                                src={URL.createObjectURL(profileImage)}
+                            <UserAvatar
+                                size={200}
                                 variant="rounded"
-                                sx={{
-                                    width: "10em",
-                                    height: "10em",
-                                    margin: "0 auto"
-                                }}
+                                src={URL.createObjectURL(profileImage)}
                             />
                         }
 
