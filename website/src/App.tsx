@@ -10,6 +10,13 @@ import LogIn from "./pages/LogIn";
 import LogOut from "./pages/LogOut";
 import NotFound from "./pages/NotFound";
 import Register from "./pages/Register";
+import Profile from "./pages/profile/Profile";
+import ProfileView from "./pages/profile/ProfileView";
+import ChangePassword from "./pages/profile/ChangePassword";
+import Wishlist from "./pages/profile/Wishlist";
+import OwnedGames from "./pages/profile/OwnedGames";
+import ReviewedGames from "./pages/profile/ReviewedGames";
+import CreatedGames from "./pages/profile/CreatedGames";
 
 const darkTheme = createTheme({
     palette: {
@@ -25,6 +32,7 @@ export default function App() {
             <div className="App">
                 <Router>
                     <Navbar />
+
                     <div style={{ padding: "2em" }}>
                         <Routes>
                             <Route path="*" element={<NotFound />} />
@@ -34,6 +42,14 @@ export default function App() {
                             <Route path="/register" element={<Register />} />
                             <Route path="/logout" element={<LogOut />} />
                             <Route path="/login" element={<LogIn />} />
+                            <Route path="/profile" element={<Profile />}>
+                                <Route index element={<ProfileView />} />
+                                <Route path="change-password" element={<ChangePassword />} />
+                                <Route path="wishlist" element={<Wishlist />} />
+                                <Route path="owned-games" element={<OwnedGames />} />
+                                <Route path="reviewed-games" element={<ReviewedGames />} />
+                                <Route path="created-games" element={<CreatedGames />} />
+                            </Route>
                         </Routes>
                     </div>
                 </Router>

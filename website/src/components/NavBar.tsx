@@ -34,12 +34,13 @@ export default function NavBar() {
         );
     } else {
         navLinks.push(
+            { name: "Profile", link: "/profile" },
             { name: "Log Out", link: "/logout" },
         );
     }
 
     return (
-        <AppBar position="static">
+        <AppBar position="sticky" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
             <Container >
                 <Toolbar disableGutters>
                     {/* Website Title */}
