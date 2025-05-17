@@ -368,4 +368,23 @@ export namespace Api {
             }
         );
     }
+
+    export async function changePassword(
+        currentPassword: string,
+        newPassword: string,
+    ) {
+        const { userId, authHeaders } = getAuth();
+        const response = await axios.patch(
+            `${BASE_URL}/users/${userId}`,
+            {
+                password: newPassword,
+                currentPassword
+            },
+            {
+                headers: {
+                    ...authHeaders,
+                }
+            }
+        );
+    }
 }
