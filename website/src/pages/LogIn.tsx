@@ -1,9 +1,9 @@
-import { Typography, Box, FormControl, TextField, Button, Stack, Card, Snackbar, Alert } from "@mui/material";
+import { Alert, Box, Button, Card, FormControl, Link, Snackbar, Stack, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { joinErrorMessages, parseAjvErrors } from "../services/ajv.parser";
 import { Api } from "../services/api.service";
 import { useAuthStore } from "../store/auth-store";
-import { useNavigate } from "react-router-dom";
-import { joinErrorMessages, parseAjvErrors } from "../services/ajv.parser";
 
 export default function LogIn() {
 
@@ -32,7 +32,7 @@ export default function LogIn() {
 
     async function tryLogin() {
         try {
-            const {userId, token} = await Api.login({email, password});
+            const { userId, token } = await Api.login({ email, password });
             setAuth({
                 token,
                 userId
@@ -49,7 +49,7 @@ export default function LogIn() {
             }
         }
     }
-    
+
     // Redirect to home page if already logged in
     useEffect(() => {
         const { auth } = useAuthStore.getState();
@@ -119,6 +119,9 @@ export default function LogIn() {
                             Login
                         </Button>
 
+                        <Typography>
+                            Don't have an account? <Link component={RouterLink} to="/register">Register</Link>
+                        </Typography>
                     </Box>
                 </Card>
             </Stack>

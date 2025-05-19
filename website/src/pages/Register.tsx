@@ -1,8 +1,8 @@
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import { Alert, Box, Button, Card, FormControl, IconButton, Snackbar, Stack, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, Card, FormControl, IconButton, Link, Snackbar, Stack, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import UserAvatar from "../components/UserAvatar";
 import { joinErrorMessages, parseAjvErrors } from "../services/ajv.parser";
 import { Api } from "../services/api.service";
@@ -208,6 +208,9 @@ export default function Register() {
                             Register
                         </Button>
 
+                        <Typography>
+                            Already have an account? <Link component={RouterLink} to="/login">Log in</Link>
+                        </Typography>
                     </Box>
                 </Card>
             </Stack>
