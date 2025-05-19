@@ -474,4 +474,25 @@ export namespace Api {
             }
         );
     }
+
+    export async function reviewGame(
+        gameId: number,
+        rating: number,
+        review?: string
+    ) {
+
+        const { authHeaders } = getAuth();
+        const response = await axios.post(
+            `${BASE_URL}/games/${gameId}/reviews`,
+            {
+                rating,
+                review
+            },
+            {
+                headers: {
+                    ...authHeaders,
+                }
+            }
+        );
+    }
 }
