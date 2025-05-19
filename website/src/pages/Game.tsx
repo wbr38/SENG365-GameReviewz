@@ -268,9 +268,246 @@ function ReviewsSection(props: {
     );
 }
 
+function WishlistButton(props: {
+    isLoggedIn: boolean,
+    isCreator: boolean,
+    isWishlisted: boolean | null,
+    isOwned: boolean | null,
+    wishlistGame: () => any,
+    unwishlistGame: () => any
+}) {
+    const { isLoggedIn, isCreator, isWishlisted, isOwned, wishlistGame, unwishlistGame } = props;
+
+    if (isCreator)
+        return (
+            <Button
+                variant="outlined"
+                startIcon={<GiftIcon sx={iconStyle} />}
+                style={{ marginBottom: "1em" }}
+                disabled
+            >
+                Can't wishlist a game you made
+            </Button>
+        );
+
+    if (!isLoggedIn)
+        return (
+            <Button
+                variant="outlined"
+                startIcon={<GiftIcon sx={iconStyle} />}
+                style={{ marginBottom: "1em" }}
+                disabled
+            >
+                Log in to wishlist
+            </Button>
+        );
+
+    // If game is owned then we cannot wishlist the game
+    if (isOwned)
+        return (
+            <Button
+                variant="outlined"
+                startIcon={<GiftIcon sx={iconStyle} />}
+                style={{ marginBottom: "1em" }}
+                loading={isWishlisted == null}
+                disabled
+            >
+                Game is owned; can't wishlist
+            </Button>
+        );
+
+    if (isWishlisted)
+        return (
+            <Button
+                variant="outlined"
+                startIcon={<GiftIcon sx={iconStyle} />}
+                style={{ marginBottom: "1em" }}
+                onClick={unwishlistGame}
+                color="secondary"
+            >
+                Remove from wishlist
+            </Button>
+        );
+
+    return (
+        <Button
+            variant="outlined"
+            startIcon={<GiftIcon sx={iconStyle} />}
+            style={{ marginBottom: "1em" }}
+            onClick={wishlistGame}
+            loading={isWishlisted == null}
+            disabled={isWishlisted == null}
+        >
+            Add to wishlist
+        </Button>
+    )
+}
+
+function OwnedButton(props: {
+    isLoggedIn: boolean,
+    isCreator: boolean,
+    isOwned: boolean | null,
+    markGameOwned: () => any,
+    unmarkGameOwned: () => any
+}) {
+
+    const { isCreator, isLoggedIn, isOwned, markGameOwned, unmarkGameOwned } = props;
+
+    if (isCreator)
+        return (
+            <Button
+                variant="outlined"
+                startIcon={<GameControllerIcon sx={iconStyle} />}
+                style={{ marginBottom: "1em" }}
+                disabled
+            >
+                Can't own a game you made
+            </Button>
+        );
+
+    if (!isLoggedIn)
+        return (
+            <Button
+                variant="outlined"
+                startIcon={<GameControllerIcon sx={iconStyle} />}
+                style={{ marginBottom: "1em" }}
+                disabled
+            >
+                Log in to mark as owned
+            </Button>
+        );
+
+    if (isOwned)
+        return (
+            <Button
+                variant="outlined"
+                startIcon={<GameControllerIcon sx={iconStyle} />}
+                style={{ marginBottom: "1em" }}
+                onClick={unmarkGameOwned}
+                color="secondary"
+            >
+                Unmark game as owned
+            </Button>
+        );
+
+    return (
+        <Button
+            variant="outlined"
+            startIcon={<GameControllerIcon sx={iconStyle} />}
+            style={{ marginBottom: "1em" }}
+            onClick={markGameOwned}
+            loading={isOwned == null}
+            disabled={isOwned == null}
+        >
+            Mark game as owned
+        </Button>
+    );
+}
+
+function WishlistOwnedButtons(props: {
+    game: GameInfo,
+    allGenres: Genre[],
+    allPlatforms: Platform[]
+}) {
+    const { game, allGenres, allPlatforms } = props;
+    const [isWishlisted, setIsWishlisted] = useState<boolean | null>(null);
+    const [isOwned, setIsOwned] = useState<boolean | null>(null);
+
+    const authState = useAuthStore((state) => state.auth);
+    const isLoggedIn = authState.token !== null && authState.userId !== null;
+    const isCreator = game.creatorId === authState.userId;
+
+    async function checkIfOwned() {
+        const wishlistedGames = await Api.getGames(allGenres, allPlatforms, {
+            ownedByMe: true
+        });
+
+        setIsOwned(wishlistedGames.games.some((x) => x.gameId === game.gameId));
+    }
+
+    async function checkIsWishlisted() {
+        const wishlistedGames = await Api.getGames(allGenres, allPlatforms, {
+            wishlistedByMe: true
+        });
+
+        setIsWishlisted(wishlistedGames.games.some((x) => x.gameId === game.gameId));
+    }
+
+    function reloadButtons() {
+        if (!isLoggedIn) return;
+        setIsWishlisted(null);
+        setIsOwned(null);
+        checkIsWishlisted();
+        checkIfOwned();
+    }
+
+    // Is game already wishlisted
+    useEffect(() => {
+        reloadButtons();
+    }, []);
+
+    async function wishlistGame() {
+        try {
+            await Api.wishlistGame(game.gameId);
+            reloadButtons();
+        } catch (error) {
+            // TODO: snackbar
+            console.log(error);
+        }
+    }
+
+    async function unwishlistGame() {
+        try {
+            await Api.unwishlistGame(game.gameId);
+            reloadButtons();
+        } catch (error) {
+            // TODO: snackbar
+            console.log(error);
+        }
+    }
+
+    async function markGameOwned() {
+        try {
+            await Api.markGameOwned(game.gameId);
+            reloadButtons();
+        } catch (error) {
+            // TODO: snackbar
+            console.log(error);
+        }
+    }
+
+    async function unmarkGameOwned() {
+        try {
+            await Api.unmarkGameOwned(game.gameId);
+            reloadButtons();
+        } catch (error) {
+            // TODO: snackbar
+            console.log(error);
+        }
+    }
+
+    return (
+        <>
+            <WishlistButton
+                isCreator={isCreator}
+                isLoggedIn={isLoggedIn}
+                isWishlisted={isWishlisted}
+                isOwned={isOwned}
+                wishlistGame={wishlistGame}
+                unwishlistGame={unwishlistGame} />
+
+            <OwnedButton
+                isCreator={isCreator}
+                isLoggedIn={isLoggedIn}
+                isOwned={isOwned}
+                markGameOwned={markGameOwned}
+                unmarkGameOwned={unmarkGameOwned} />
+        </>
+    );
+}
+
 export default function Game() {
     const params = useParams();
-
     const gameId = Number(params.id!);
 
     const [game, setGame] = useState<GameInfo | null>(null);
@@ -377,7 +614,7 @@ export default function Game() {
     if (isNaN(gameId))
         return <pre>Invalid game ID: {params.id}</pre>
 
-    if (!game)
+    if (!game || !allPlatforms || !allGenres)
         return <pre>Loading...</pre>
 
     return (
@@ -394,11 +631,16 @@ export default function Game() {
             <div style={{
                 gridColumn: 1,
                 gridRow: 1,
-                height: "0"
+                height: "6em" // why is this needed???
             }}>
                 <img style={{ ...imageStyle }}
                     src={Api.getGameImage(gameId)} alt=""
                 />
+
+                <WishlistOwnedButtons
+                    game={game}
+                    allGenres={allGenres}
+                    allPlatforms={allPlatforms} />
             </div>
 
             {/* Game Details (Right) */}

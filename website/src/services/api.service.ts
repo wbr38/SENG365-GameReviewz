@@ -495,4 +495,64 @@ export namespace Api {
             }
         );
     }
+
+    export async function wishlistGame(
+        gameId: number,
+    ) {
+        const { authHeaders } = getAuth();
+        const response = await axios.post(
+            `${BASE_URL}/games/${gameId}/wishlist`,
+            {
+            },
+            {
+                headers: {
+                    ...authHeaders,
+                }
+            }
+        );
+    }
+
+    export async function unwishlistGame(
+        gameId: number,
+    ) {
+        const { authHeaders } = getAuth();
+        const response = await axios.delete(
+            `${BASE_URL}/games/${gameId}/wishlist`,
+            {
+                headers: {
+                    ...authHeaders,
+                }
+            }
+        );
+    }
+
+    export async function markGameOwned(
+        gameId: number,
+    ) {
+        const { authHeaders } = getAuth();
+        const response = await axios.post(
+            `${BASE_URL}/games/${gameId}/owned`,
+            {
+            },
+            {
+                headers: {
+                    ...authHeaders,
+                }
+            }
+        );
+    }
+    
+    export async function unmarkGameOwned(
+        gameId: number,
+    ) {
+        const { authHeaders } = getAuth();
+        const response = await axios.delete(
+            `${BASE_URL}/games/${gameId}/owned`,
+            {
+                headers: {
+                    ...authHeaders,
+                }
+            }
+        );
+    }
 }
