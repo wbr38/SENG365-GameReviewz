@@ -4,20 +4,17 @@ import { useSearchParams } from "react-router-dom";
 import { Api, GameList, GameSortMethod, Genre, Platform } from "../services/api.service";
 import GameCard from "../components/GameCard";
 
-export default function Games() {
-    const [searchParams, setSearchParams] = useSearchParams();
-    const updateParam = (name: string, value: string) => {
-        searchParams.set(name, value);
-        setSearchParams(searchParams);
-    }
+export function GamesList(props: {
+    search?: string,
+    wishlistedByMe?: boolean,
+    ownedByMe?: boolean,
+    reviewerId?: number, 
+    creatorId?: number 
+}) {
+    const { search, wishlistedByMe, ownedByMe, reviewerId, creatorId } = props;
 
-    const search = searchParams.get("search") ?? undefined;
-    const page = parseInt(searchParams.get("page") || "1", 10);
-    const updatePage = (value: number) => updateParam("page", value.toString());
-
-    const perPage = parseInt(searchParams.get("perPage") || "10", 10);
-    const updatePerPage = (value: number) => updateParam("perPage", value.toString());
-
+    const [page, setPage] = useState(1);
+    const [perPage, setPerPage] = useState(10);
     const [gamesCount, setGamesCount] = useState(0);
     const [games, setGames] = useState<GameList[]>([]);
     const [allGenres, setAllGenres] = useState<Genre[] | null>(null);
@@ -114,7 +111,11 @@ export default function Games() {
                         sortBy: gameSortMethod,
                         price: maxPrice,
                         genres: _selectedGenres,
-                        platforms: _selectedPlatforms
+                        platforms: _selectedPlatforms,
+                        wishlistedByMe,
+                        ownedByMe,
+                        reviewerId,
+                        creatorId
                     }
                 );
 
@@ -130,7 +131,7 @@ export default function Games() {
         }
 
         fetchGames();
-    }, [search, page, perPage, gameSortMethod, maxPrice, selectedGenres, selectedPlatforms, allGenres, allPlatforms]);
+    }, [search, page, perPage, gameSortMethod, maxPrice, selectedGenres, selectedPlatforms, allGenres, allPlatforms, wishlistedByMe, ownedByMe, creatorId, reviewerId]);
 
     const numPages = Math.ceil(gamesCount / perPage);
 
@@ -273,7 +274,7 @@ export default function Games() {
                     <InputLabel>Items per page</InputLabel>
                     <Select
                         value={perPage}
-                        onChange={(event) => updatePerPage(Number(event.target.value))}
+                        onChange={(event) => setPerPage(Number(event.target.value))}
                         label="Items per page"
                     >
                         <MenuItem value={5}>5</MenuItem>
@@ -288,11 +289,23 @@ export default function Games() {
                 <Pagination
                     count={numPages}
                     page={page}
-                    onChange={(event, value) => updatePage(value)}
+                    onChange={(event, value) => setPage(value)}
                     variant="outlined"
                     shape="rounded"
                 />
             </div>
         </div>
     );
+}
+
+export default function Games() {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const search = searchParams.get("search") ?? undefined;
+    return (
+        <div>
+            <GamesList
+                search={search}
+            />
+        </div>
+    )
 };

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 import { useAuthStore } from "../store/auth-store";
 
 export enum ApiBaseUrl {
@@ -240,42 +240,69 @@ export namespace Api {
             sortBy?: GameSortMethod,
             price?: number,
             creatorId?: number,
+            reviewerId?: number,
             genres?: Genre[],
             platforms?: Platform[],
+            wishlistedByMe?: boolean
+            ownedByMe?: boolean
         }
     ) {
+        const config: AxiosRequestConfig = {
+            params: new URLSearchParams(),
+            headers: {}
+        };
 
-        const params = new URLSearchParams();
-        const { query, startIndex, count, sortBy, price, creatorId, genres, platforms } = searchParams;
+        const { query, startIndex, count, sortBy, price, creatorId, reviewerId, genres, platforms, wishlistedByMe, ownedByMe } = searchParams;
 
         if (query)
-            params.set("q", query);
+            config.params.set("q", query);
 
         if (startIndex)
-            params.set("startIndex", startIndex.toString());
+            config.params.set("startIndex", startIndex.toString());
 
         if (count)
-            params.set("count", count.toString());
+            config.params.set("count", count.toString());
 
         if (sortBy)
-            params.set("sortBy", sortBy);
+            config.params.set("sortBy", sortBy);
 
         if (price)
-            params.set("price", Math.round(price * 100).toString());
+            config.params.set("price", Math.round(price * 100).toString());
 
         if (creatorId)
-            params.set("creatorId", creatorId.toString());
+            config.params.set("creatorId", creatorId.toString());
+
+        if (reviewerId)
+            config.params.set("reviewerId", reviewerId.toString());
 
         if (genres)
             for (const genre of genres)
-                params.append("genreIds", genre.genreId.toString());
+                config.params.append("genreIds", genre.genreId.toString());
 
         if (platforms)
             for (const platform of platforms)
-                params.append("platformIds", platform.platformId.toString());
+                config.params.append("platformIds", platform.platformId.toString());
+        
+        if (wishlistedByMe)
+            config.params.set("wishlistedByMe", wishlistedByMe.toString());
 
+        if (ownedByMe)
+            config.params.set("ownedByMe", ownedByMe.toString());
 
-        const response = await axios.get(`${BASE_URL}/games`, { params });
+        // Add auth
+        if (wishlistedByMe || ownedByMe) {
+            const { authHeaders } = getAuth();
+            config.headers = {
+                ...config.headers,
+                ...authHeaders
+            }
+        }
+
+        const response = await axios.get(
+            `${BASE_URL}/games`,
+            config
+        );
+
         const data = response.data as {
             games: API_GameList[],
             count: number

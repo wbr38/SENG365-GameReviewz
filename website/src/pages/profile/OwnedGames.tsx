@@ -1,5 +1,15 @@
+import { GamesList } from "../Games";
+
 export default function OwnedGames() {
+
     return (
-        <h1>OwnedGames</h1>
+        <div style={{
+            margin: "0 auto"
+        }}>
+            <h1>Owned Games</h1>
+            <GamesList
+                ownedByMe={true}
+            />
+        </div>
     );
 }
