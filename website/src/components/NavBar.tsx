@@ -1,27 +1,34 @@
-import SearchIcon from '@mui/icons-material/Search';
+import SearchIcon from "@mui/icons-material/Search";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
 import Toolbar from "@mui/material/Toolbar";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import * as S from '../styles/NavBar.styles';
-import { useAuthStore } from '../store/auth-store';
+import { useAuthStore } from "../store/auth-store";
+import * as S from "../styles/NavBar.styles";
 
 export default function NavBar() {
 
+    const navigate = useNavigate();
     const authState = useAuthStore((state) => state.auth);
     const isLoggedIn = authState.token !== null && authState.userId !== null;
 
-    const navigate = useNavigate();
-    function handleSearch(event: React.KeyboardEvent<HTMLInputElement>) {
+    const [searchText, setSearchText] = useState("");
+    const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
+    const SEARCH_DEBOUNCE_MS = 300;
+    useEffect(() => {
 
-        if (event.key !== 'Enter')
-            return;
+        if (searchTimeout)
+            clearTimeout(searchTimeout);
 
-        const query = event.currentTarget.value;
-        navigate(`/games?search=${encodeURIComponent(query)}`);
-    }
+        const newTimeout = setTimeout(() => {
+            navigate(`/games?search=${encodeURIComponent(searchText)}`);
+        }, SEARCH_DEBOUNCE_MS);
+        setSearchTimeout(newTimeout);
+
+    }, [searchText]);
 
     const navLinks: { name: string, link: string }[] = [
         { name: "Games", link: "/games" },
@@ -68,7 +75,7 @@ export default function NavBar() {
                         </S.IconWrapper>
                         <S.StyledInputBase
                             placeholder="Search"
-                            onKeyDown={handleSearch}
+                            onChange={(event) => setSearchText(event.target.value)}
                         />
                     </S.Search>
 
