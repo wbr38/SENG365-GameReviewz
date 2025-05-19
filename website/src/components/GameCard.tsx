@@ -35,9 +35,9 @@ export function GameDetail(props: { name: string, children: React.ReactNode }) {
             <Typography variant="body2" color="gray">
                 {name}
             </Typography>
-            <Typography variant="body2" sx={{ display: "flex", textAlign: "right", gap: "0.5ch" }}>
+            <div style={{ display: "flex", textAlign: "right", gap: "0.5ch" }}>
                 {children}
-            </Typography>
+            </div>
         </Stack>
     );
 }
