@@ -654,7 +654,7 @@ export default function Game() {
                 </Typography>
 
                 <p>
-                    Released on {game.creationDate} by {game.creatorName()}
+                    Released on <strong>{game.creationDate}</strong> by <strong>{game.creatorName()}</strong>
                 </p>
 
                 <p>
@@ -662,11 +662,11 @@ export default function Game() {
                 </p>
 
                 <p>
-                    Platforms: {game.getPlatforms()}
+                    <strong>Platforms:</strong> {game.getPlatforms()}
                 </p>
 
                 <p>
-                    Genre: {game.getGenreName()}
+                    <strong>Genre:</strong> {game.getGenreName()}
                 </p>
 
                 <div style={{ display: "flex" }}>
