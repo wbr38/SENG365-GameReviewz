@@ -1,5 +1,5 @@
 import { useAuthStore } from "../../store/auth-store";
-import { GamesList } from "../Games";
+import { GamesList } from "../../components/GamesList";
 
 export default function ReviewedGames() {
 
