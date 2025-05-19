@@ -60,7 +60,7 @@ export default function LogIn() {
 
     // TODO: (10 Remove after testing
     useEffect(() => {
-        setEmail("user@bruno.example");
+        setEmail("k@gmail.com");
         setPassword("password");
     }, []);
 
