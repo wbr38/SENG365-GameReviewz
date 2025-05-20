@@ -8,7 +8,7 @@ or alternatively by defining a custom URL to use
 
 export default function UserAvatar(props: {
     size: number,
-    user: User, 
+    user: User,
     variant?: AvatarOwnProps["variant"],
     imageVersion?: number,
 }): any;
@@ -28,7 +28,7 @@ export default function UserAvatar(props: {
     let { user, size, src, variant, imageVersion } = props;
 
     imageVersion ??= 0;
-    const srcUrl = (user ? Api.getUserImage(user.userId) : src) + `?v=${imageVersion}`;
+    const srcUrl = user ? `${Api.getUserImage(user.userId)}?v=${imageVersion}` : src;
 
     return (
         <Avatar
