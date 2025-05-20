@@ -1,5 +1,5 @@
 import { Checkbox, FormControl, Grid, InputAdornment, InputLabel, ListItemText, MenuItem, OutlinedInput, Pagination, Select, TextField } from "@mui/material";
-import { useEffect, useState } from "react";
+import { JSX, useEffect, useState } from "react";
 import { Api, GameList, GameSortMethod, Genre, Platform } from "../services/api.service";
 import GameCard from "./GameCard";
 import { useSnackbar } from "./SnackBar";
@@ -8,10 +8,11 @@ export function GamesList(props: {
     search?: string,
     wishlistedByMe?: boolean,
     ownedByMe?: boolean,
-    reviewerId?: number, 
-    creatorId?: number 
+    reviewerId?: number,
+    creatorId?: number
+    footer?: (game: GameList) => JSX.Element
 }) {
-    const { search, wishlistedByMe, ownedByMe, reviewerId, creatorId } = props;
+    const { search, wishlistedByMe, ownedByMe, reviewerId, creatorId, footer } = props;
 
     const { showSnackMessage } = useSnackbar();
     const [page, setPage] = useState(1);
@@ -257,7 +258,11 @@ export function GamesList(props: {
 
             <Grid container spacing={2} columns={4} justifyContent={"center"}>
                 {games.map((game) =>
-                    <GameCard key={game.gameId} game={game} />
+                    <GameCard
+                        key={game.gameId}
+                        game={game}
+                        footer={footer?.(game)}
+                    />
                 )}
             </Grid>
 

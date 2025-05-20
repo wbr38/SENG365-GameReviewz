@@ -1,6 +1,6 @@
 import GiftIcon from "@mui/icons-material/CardGiftcard";
 import GameControllerIcon from "@mui/icons-material/VideogameAsset";
-import { Button, Card, CardContent, CardHeader, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Pagination, Rating, TextField, Typography } from "@mui/material";
+import { Button, Card, CardContent, CardHeader, Dialog, DialogActions, DialogContent, DialogTitle, Pagination, Rating, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import GameCard from "../components/GameCard";
@@ -173,32 +173,31 @@ function ReviewButton(props: {
                 </DialogTitle>
 
                 <DialogContent>
-                    <h1 style={{ margin: 0 }}>{game.title}</h1>
+                        <h1 style={{ margin: 0 }}>{game.title}</h1>
 
-                    <div>
-                        <Typography>{reviewStars}/10 stars</Typography>
-                        <Rating
-                            value={reviewStars}
-                            onChange={(event, newValue) => {
-                                if (newValue)
-                                    setReviewStars(newValue);
+                        <div>
+                            <Typography>{reviewStars}/10 stars</Typography>
+                            <Rating
+                                value={reviewStars}
+                                onChange={(event, newValue) => {
+                                    if (newValue)
+                                        setReviewStars(newValue);
+                                }}
+                                max={10}
+                            />
+                        </div>
+
+                        <TextField
+                            label="Message (Optional)"
+                            multiline
+                            rows={4}
+                            sx={{
+                                width: "25vw",
+                                margin: "1em 0"
                             }}
-                            max={10}
+                            value={reviewMessage}
+                            onChange={(event) => setReviewMessage(event.target.value)}
                         />
-                    </div>
-
-                    <TextField
-                        id="outlined-multiline-static"
-                        label="Message (Optional)"
-                        multiline
-                        rows={4}
-                        sx={{
-                            width: "25vw",
-                            margin: "1em 0"
-                        }}
-                        value={reviewMessage}
-                        onChange={(event) => setReviewMessage(event.target.value)}
-                    />
                 </DialogContent>
 
                 <DialogActions>

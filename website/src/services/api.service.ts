@@ -555,4 +555,43 @@ export namespace Api {
             }
         );
     }
+
+    export async function editGame(
+        gameId: number,
+        data: {
+            title?: string,
+            description?: string,
+            genreId?: number,
+            price?: number,
+            platformIds?: number[],
+        }
+    ) {
+        if (data.price !== undefined)
+            data.price = Math.round(data.price * 100);
+
+        const { authHeaders } = getAuth();
+        const response = await axios.patch(
+            `${BASE_URL}/games/${gameId}`,
+            data,
+            {
+                headers: {
+                    ...authHeaders,
+                }
+            }
+        );
+    }
+
+    export async function deleteGame(
+        gameId: number,
+    ) {
+        const { authHeaders } = getAuth();
+        const response = await axios.delete(
+            `${BASE_URL}/games/${gameId}`,
+            {
+                headers: {
+                    ...authHeaders,
+                }
+            }
+        );
+    }
 }

@@ -1,7 +1,8 @@
-import { styled, Card, CardContent, Stack, Typography, CardMedia, Box, Button } from "@mui/material";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import { Box, Button, Card, CardContent, CardMedia, Stack, styled, Typography } from "@mui/material";
+import { JSX } from "react";
 import { Link } from "react-router-dom";
 import { Api, GameList } from "../services/api.service";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import UserAvatar from "./UserAvatar";
 
 export const SyledCard = styled(Card)(({ theme }) => ({
@@ -42,9 +43,12 @@ export function GameDetail(props: { name: string, children: React.ReactNode }) {
     );
 }
 
-export default function GameCard(props: { game: GameList }) {
+export default function GameCard(props: {
+    game: GameList,
+    footer?: JSX.Element
+}) {
 
-    const { game } = props;
+    const { game, footer } = props;
     return (
         <SyledCard key={game.gameId} variant="outlined" >
 
@@ -115,6 +119,8 @@ export default function GameCard(props: { game: GameList }) {
                         </Box>
                     </Stack>
                 </Box>
+
+                {!!footer && footer}
             </SyledCardContent>
         </SyledCard>
     );
