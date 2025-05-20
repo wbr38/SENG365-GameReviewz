@@ -594,4 +594,48 @@ export namespace Api {
             }
         );
     }
+
+    export async function createGame(
+        data: {
+            title: string,
+            description: string,
+            genreId: number,
+            price: number,
+            platformIds: number[],
+        }
+    ) {
+        data.price = Math.round(data.price * 100);
+
+        const { authHeaders } = getAuth();
+        const response = await axios.post(
+            `${BASE_URL}/games/`,
+            data,
+            {
+                headers: {
+                    ...authHeaders,
+                }
+            }
+        );
+
+        return response.data as {
+            gameId: number
+        };
+    }
+
+    export async function setGameImage(
+        gameId: number,
+        image: File
+    ) {
+        const { authHeaders } = getAuth();
+        const response = await axios.put(
+            `${BASE_URL}/games/${gameId}/image`,
+            image,
+            {
+                headers: {
+                    ...authHeaders,
+                    "Content-Type": image.type,
+                }
+            }
+        );
+    }
 }

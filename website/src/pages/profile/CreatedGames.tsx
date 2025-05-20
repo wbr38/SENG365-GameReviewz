@@ -1,11 +1,282 @@
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import EditIcon from "@mui/icons-material/Edit";
-import { Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputAdornment, InputLabel, ListItemText, MenuItem, OutlinedInput, Rating, Select, TextField, Typography } from "@mui/material";
+import { Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormHelperText, InputAdornment, InputLabel, ListItemText, MenuItem, OutlinedInput, Rating, Select, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { GamesList } from "../../components/GamesList";
 import { useSnackbar } from "../../components/SnackBar";
+import UserAvatar from "../../components/UserAvatar";
+import { joinErrorMessages, parseAjvErrors } from "../../services/ajv.parser";
 import { Api, GameInfo, GameList, Genre, Platform } from "../../services/api.service";
 import { useAuthStore } from "../../store/auth-store";
+
+function CreateModal(props: {
+    isOpen: boolean
+    closeModal: () => void,
+    refresh: () => void,
+}) {
+    const { isOpen, refresh, closeModal } = props;
+    const { showSnackMessage } = useSnackbar();
+
+    const [title, setTitle] = useState<string>("");
+    const [description, setDescription] = useState<string>("");
+    const [genre, setGenre] = useState<string>("");
+    const [price, setPrice] = useState<number>(0);
+    const [image, setImage] = useState<File | null>(null);
+    const [platforms, setPlatforms] = useState<string[]>([]);
+
+    const [titleErrorMsg, setTitleErrorMsg] = useState<string[]>([]);
+    const [descriptionErrorMsg, setDescriptionErrorMsg] = useState<string[]>([]);
+    const [genreErrorMsg, setGenreErrorMsg] = useState<string[]>([]);
+    const [imageErrorMsg, setImageErrorMsg] = useState<string[]>([]);
+    const [platformsErrorMsg, setPlatformsErrorMsg] = useState<string[]>([]);
+
+    const updateSelectedPlatforms = (value: string | string[]) => {
+        if (!allPlatforms) return;
+
+        if (typeof value === "string") {
+            const names = value.split(",");
+            return setPlatforms(names);
+        }
+
+        setPlatforms(value);
+    };
+
+    // Fetch allGenres and allPlatforms once, as it probably won't change between requests
+    const [allGenres, setAllGenres] = useState<Genre[] | null>(null);
+    const [allPlatforms, setAllPlatforms] = useState<Platform[] | null>(null);
+    useEffect(() => {
+        async function fetchGenresAndPlatforms() {
+            try {
+                const [genresResponse, platformsResponse] = await Promise.all([
+                    Api.getGenres(),
+                    Api.getPlatforms(),
+                ]);
+                setAllGenres(genresResponse);
+                setAllPlatforms(platformsResponse);
+            } catch (error: any) {
+                const statusText = error?.response?.statusText ?? "Unkown error occured, check console.";
+                showSnackMessage(statusText, "error");
+                console.log("Error fetching genres and platforms:", error);
+            }
+        }
+
+        // Only fetch once
+        if (!allGenres || !allPlatforms)
+            fetchGenresAndPlatforms();
+    }, []); // empty dependency array to only call once on page load
+
+
+    const ajvErrors: { [prefix: string]: typeof setTitleErrorMsg } = {
+        "data/title": setTitleErrorMsg,
+        "data/description": setDescriptionErrorMsg,
+        // "data/genreId": setGenreErrorMsg, // data must have required property 'genreId' 
+        "data/platformIds": setPlatformsErrorMsg,
+    };
+    async function tryCreateGame() {
+        try {
+            if (!allGenres || !allPlatforms)
+                return;
+
+            if (!image)
+                return setImageErrorMsg(["An image is required to create a game!"]);
+
+            // Can't parse genreId as the error from ajv is in a slightly different format than the others
+            if (genre == null)
+                return setGenreErrorMsg(["An image is required to create a game!"]);
+
+            const { gameId } = await Api.createGame({
+                title,
+                description,
+                genreId: allGenres.filter(x => x.name === genre)[0]?.genreId,
+                platformIds: allPlatforms.filter(x => platforms.includes(x.name)).map(x => x.platformId),
+                price
+            });
+
+            await Api.setGameImage(gameId, image);
+            closeModal();
+            showSnackMessage("Game created!", "success");
+            refresh();
+        } catch (error: any) {
+            try {
+                parseAjvErrors(error, ajvErrors, showSnackMessage);
+            } catch (_) {
+                const statusText = error?.response?.statusText ?? "Unkown error occured, check console.";
+                showSnackMessage(statusText, "error");
+                console.log(error);
+            }
+        }
+    }
+
+    if (!allPlatforms || !allGenres)
+        return <></>;
+
+    return (
+        <Dialog
+            open={isOpen}
+            onClose={closeModal}
+        >
+            <DialogTitle>
+                Create Game
+            </DialogTitle>
+
+            <DialogContent sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "1em",
+                width: "50vw"
+            }}>
+                {/*  Title */}
+                <TextField
+                    label="Title"
+                    rows={1}
+                    value={title}
+                    onChange={(event) => setTitle(event.target.value)}
+                    error={titleErrorMsg.length > 0}
+                    helperText={joinErrorMessages(titleErrorMsg)}
+                    color={!!titleErrorMsg ? "error" : "primary"}
+                />
+
+                {/* Description */}
+                <TextField
+                    label="Description"
+                    multiline
+                    rows={4}
+                    value={description}
+                    onChange={(event) => setDescription(event.target.value)}
+                    error={descriptionErrorMsg.length > 0}
+                    helperText={joinErrorMessages(descriptionErrorMsg)}
+                    color={!!descriptionErrorMsg ? "error" : "primary"}
+                />
+
+                {/* Genre */}
+                <FormControl
+                    size="small"
+                    error={genreErrorMsg.length > 0}
+                >
+                    <InputLabel>Genre</InputLabel>
+                    <Select
+                        value={genre}
+                        onChange={(event) => setGenre(event.target.value)}
+                        input={<OutlinedInput label="Tag" />}
+                        renderValue={() => genre}
+                        color={!!genreErrorMsg ? "error" : "primary"}
+                    >
+                        {allGenres.map((g) => (
+                            <MenuItem key={g.genreId} value={g.name}>
+                                <Checkbox checked={genre === g.name} />
+                                <ListItemText primary={g.name} />
+                            </MenuItem>
+                        ))}
+                    </Select>
+                    <FormHelperText>{joinErrorMessages(genreErrorMsg)}</FormHelperText>
+                </FormControl>
+
+                {/* Platforms */}
+                <FormControl
+                    size="small"
+                    error={platformsErrorMsg.length > 0}
+                >
+                    <InputLabel>Platforms</InputLabel>
+                    <Select
+                        multiple
+                        value={platforms}
+                        onChange={(event) => updateSelectedPlatforms(event.target.value)}
+                        input={<OutlinedInput label="Tag" />}
+                        renderValue={() => platforms.join(", ")}
+                        color={!!platformsErrorMsg ? "error" : "primary"}
+                    >
+                        {allPlatforms.map((p) => (
+                            <MenuItem key={p.platformId} value={p.name}>
+                                <Checkbox checked={platforms?.includes(p.name)} />
+                                <ListItemText primary={p.name} />
+                            </MenuItem>
+                        ))}
+                    </Select>
+                    <FormHelperText>{joinErrorMessages(platformsErrorMsg)}</FormHelperText>
+                </FormControl>
+
+                {/* Price */}
+                <TextField
+                    type="number"
+                    label="Price"
+                    size="small"
+                    value={price.toString()}
+                    onChange={(event) => {
+                        if (event.target.value === "")
+                            return setPrice(0.0);
+
+                        const num = parseFloat(event.target.value);
+                        if (num <= 0)
+                            return setPrice(0.0);
+
+                        if (!isNaN(num))
+                            return setPrice(Math.round(num * 100) / 100); // Round to 2 decimal places
+                    }}
+                    slotProps={{
+                        htmlInput: {
+                            step: 1.0,
+                        },
+                        input: {
+                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                        },
+                    }}
+                    // Price is default 0 and the html input shouldn't let invalid values be entered
+                    // error={priceErrorMsg.length > 0}
+                    // helperText={joinErrorMessages(priceErrorMsg)}
+                    // color={!!priceErrorMsg ? "error" : "primary"}
+                />
+
+                <FormControl
+                    error={imageErrorMsg.length > 0}
+                    color={!!genreErrorMsg ? "error" : "primary"}
+                >
+                    {/* Image Preview - not a useravatar but just easier to reuse */}
+                    {image &&
+                        <UserAvatar
+                            size={200}
+                            variant="rounded"
+                            src={URL.createObjectURL(image)}
+                        />
+                    }
+
+                    {/* Image Upload */}
+                    <Button
+                        component="label"
+                        variant="outlined"
+                        startIcon={<CloudUploadIcon />}
+                        sx={{marginTop: "1em"}}
+                    >
+                        Upload image
+                        <input
+                            type="file"
+                            accept="image/jpeg, image/png, image/gif"
+                            onChange={(event) => {
+                                const file = event.target.files?.item(0);
+                                if (file)
+                                    setImage(file);
+                            }}
+                            style={{
+                                width: 0,
+                                height: 0
+                            }}
+                        />
+                    </Button>
+
+                    <FormHelperText>{joinErrorMessages(imageErrorMsg)}</FormHelperText>
+                </FormControl>
+
+            </DialogContent>
+
+            <DialogActions>
+                <Button onClick={closeModal}>Cancel</Button>
+                <Button onClick={tryCreateGame}>
+                    Create Game
+                </Button>
+            </DialogActions>
+        </Dialog>
+    );
+}
 
 function EditModal(props: {
     gameList: GameList | null
@@ -191,7 +462,7 @@ function EditModal(props: {
                 {/* Price */}
                 <TextField
                     type="number"
-                    label="Max Price"
+                    label="Price"
                     size="small"
                     value={price.toString()}
                     onChange={(event) => {
@@ -199,7 +470,6 @@ function EditModal(props: {
                             return setPrice(0.0);
 
                         const num = parseFloat(event.target.value);
-                        console.log(event.target.value, num);
                         if (num <= 0)
                             return setPrice(0.0);
 
@@ -334,6 +604,11 @@ export default function CreatedGames() {
     const [refreshCount, setRefreshCount] = useState(0);
     const refresh = () => setRefreshCount(prev => prev + 1);
 
+    // Create modal
+    const [createModalOpen, setCreateModalOpen] = useState(false);
+    const openCreateModal = () => setCreateModalOpen(true);
+    const closeCreateModal = () => setCreateModalOpen(false);
+
     // Edit modal
     const [gameToEdit, setGameToEdit] = useState<GameList | null>(null);
     const [editModalOpen, setEditModalOpen] = useState(false);
@@ -351,6 +626,17 @@ export default function CreatedGames() {
             margin: "0 auto"
         }}>
             <h1>Created Games</h1>
+
+            <Button
+                variant="outlined"
+                startIcon={<EditIcon />}
+                style={{ margin: "0 0 1em 0" }}
+                color="success"
+                onClick={openCreateModal}
+            >
+                Create new game
+            </Button>
+
             <GamesList
                 key={refreshCount}
                 creatorId={userId}
@@ -406,6 +692,12 @@ export default function CreatedGames() {
                 isOpen={deleteModalOpen}
                 refresh={refresh}
                 closeModal={closeDeleteModal}
+            />
+
+            <CreateModal
+                isOpen={createModalOpen}
+                refresh={refresh}
+                closeModal={closeCreateModal}
             />
         </div>
     )
