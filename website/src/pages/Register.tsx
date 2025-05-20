@@ -27,15 +27,6 @@ export default function Register() {
     const [emailErrorMsg, setEmailErrorMsg] = useState<string[]>([]);
     const [passwordErrorMsg, setPasswordErrorMsg] = useState<string[]>([]);
 
-    const [snackOpen, setSnackOpen] = useState(false)
-    const [snackMessage, setSnackMessage] = useState("")
-    const handleSnackClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
-        if (reason === "clickaway") {
-            return;
-        }
-        setSnackOpen(false);
-    };
-
     const ajvErrors: { [prefix: string]: typeof setFirstNameErrorMsg } = {
         "data/firstName": setFirstNameErrorMsg,
         "data/lastName": setLastNameErrorMsg,
@@ -65,8 +56,7 @@ export default function Register() {
                 parseAjvErrors(error, ajvErrors, showSnackMessage);
             } catch (_) {
                 const statusText = error?.response?.statusText ?? "Unkown error occured, check console.";
-                setSnackMessage(statusText);
-                setSnackOpen(true)
+                showSnackMessage(statusText, "error");
                 console.log(error);
             }
         }
@@ -216,19 +206,6 @@ export default function Register() {
                     </Box>
                 </Card>
             </Stack>
-
-            <Snackbar
-                autoHideDuration={6000}
-                open={snackOpen}
-                onClose={handleSnackClose}
-                key={snackMessage}
-            >
-                <Alert onClose={handleSnackClose} severity="error" sx={{
-                    width: '100%'
-                }}>
-                    {snackMessage}
-                </Alert>
-            </Snackbar>
         </div>
     )
 }
