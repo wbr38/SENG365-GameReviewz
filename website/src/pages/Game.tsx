@@ -173,34 +173,32 @@ function ReviewButton(props: {
                 </DialogTitle>
 
                 <DialogContent>
-                    <DialogContentText>
-                        <h1 style={{ margin: 0 }}>{game.title}</h1>
+                    <h1 style={{ margin: 0 }}>{game.title}</h1>
 
-                        <div>
-                            <Typography>{reviewStars}/10 stars</Typography>
-                            <Rating
-                                value={reviewStars}
-                                onChange={(event, newValue) => {
-                                    if (newValue)
-                                        setReviewStars(newValue);
-                                }}
-                                max={10}
-                            />
-                        </div>
-
-                        <TextField
-                            id="outlined-multiline-static"
-                            label="Message (Optional)"
-                            multiline
-                            rows={4}
-                            sx={{
-                                width: "25vw",
-                                margin: "1em 0"
+                    <div>
+                        <Typography>{reviewStars}/10 stars</Typography>
+                        <Rating
+                            value={reviewStars}
+                            onChange={(event, newValue) => {
+                                if (newValue)
+                                    setReviewStars(newValue);
                             }}
-                            value={reviewMessage}
-                            onChange={(event) => setReviewMessage(event.target.value)}
+                            max={10}
                         />
-                    </DialogContentText>
+                    </div>
+
+                    <TextField
+                        id="outlined-multiline-static"
+                        label="Message (Optional)"
+                        multiline
+                        rows={4}
+                        sx={{
+                            width: "25vw",
+                            margin: "1em 0"
+                        }}
+                        value={reviewMessage}
+                        onChange={(event) => setReviewMessage(event.target.value)}
+                    />
                 </DialogContent>
 
                 <DialogActions>
