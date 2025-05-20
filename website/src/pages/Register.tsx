@@ -3,6 +3,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { Alert, Box, Button, Card, FormControl, IconButton, Link, Snackbar, Stack, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { useSnackbar } from "../components/SnackBar";
 import UserAvatar from "../components/UserAvatar";
 import { joinErrorMessages, parseAjvErrors } from "../services/ajv.parser";
 import { Api } from "../services/api.service";
@@ -12,6 +13,7 @@ export default function Register() {
 
     const navigate = useNavigate();
     const setAuth = useAuthStore((state) => state.setAuth);
+    const { showSnackMessage } = useSnackbar();
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
@@ -60,7 +62,7 @@ export default function Register() {
         } catch (error: any) {
 
             try {
-                parseAjvErrors(error, ajvErrors);
+                parseAjvErrors(error, ajvErrors, showSnackMessage);
             } catch (_) {
                 const statusText = error?.response?.statusText ?? "Unkown error occured, check console.";
                 setSnackMessage(statusText);

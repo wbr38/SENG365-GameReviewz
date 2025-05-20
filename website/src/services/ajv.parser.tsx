@@ -1,8 +1,11 @@
+import { SnackbarContextType } from "../components/SnackBar";
+
 export function parseAjvErrors(
     error: any,
     errorMap: {
         [prefix: string]: React.Dispatch<React.SetStateAction<string[]>>;
-    }
+    },
+    showSnackMessage: SnackbarContextType["showSnackMessage"]
 ) {
     // Clear previous messages
     for (const setter of Object.values(errorMap))
@@ -16,7 +19,11 @@ export function parseAjvErrors(
     const errorMessages: { [key: string]: string[] } = {};
     for (const msg of splitMsgs) {
         const match = msg.match(/(data\/\w+)\s(.+)/);
-        if (!match) continue; // TODO: Snackbar as we failed to parse
+        if (!match) {
+            // failed to parse, resort to snackbar for this msg
+            showSnackMessage(msg, "error");
+            continue;
+        }
         const [_, key, message] = match;
         if (!errorMessages[key])
             errorMessages[key] = [];

@@ -1,11 +1,13 @@
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { Alert, AlertProps, Box, Button, Card, FormControl, IconButton, Snackbar, Stack, TextField, Typography } from "@mui/material";
+import { Box, Button, Card, FormControl, IconButton, Stack, TextField, Typography } from "@mui/material";
 import { useState } from "react";
+import { useSnackbar } from "../../components/SnackBar";
 import { joinErrorMessages, parseAjvErrors } from "../../services/ajv.parser";
 import { Api } from "../../services/api.service";
 
 export default function ChangePassword() {
 
+    const { showSnackMessage, closeSnack } = useSnackbar();
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
 
@@ -14,22 +16,6 @@ export default function ChangePassword() {
 
     const [currentPasswordErrorMsg, setCurrentPasswordErrorMsg] = useState<string[]>([]);
     const [newPasswordErrorMsg, setNewPasswordErrorMsg] = useState<string[]>([]);
-
-    const [snackOpen, setSnackOpen] = useState(false)
-    const [snackMessage, setSnackMessage] = useState("")
-    const [snackSeverity, setSnackSeverity] = useState<AlertProps["severity"]>("error");
-    const handleSnackClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
-        if (reason === "clickaway") {
-            return;
-        }
-        setSnackOpen(false);
-    };
-
-    function showSnack(message: string, severity: typeof snackSeverity) {
-        setSnackMessage(message);
-        setSnackOpen(true);
-        setSnackSeverity(severity);
-    }
 
     const ajvErrors: { [prefix: string]: typeof setCurrentPasswordErrorMsg } = {
         "data/password": setNewPasswordErrorMsg,
@@ -41,16 +27,16 @@ export default function ChangePassword() {
             await Api.changePassword(currentPassword, newPassword);
 
             // Show snack bar... clear password
-            showSnack("Password successfully changed", "success");
+            showSnackMessage("Password successfully changed", "success");
             setCurrentPassword("");
             setNewPassword("");
             setCurrentPasswordErrorMsg([]);
             setNewPasswordErrorMsg([]);
         } catch (error: any) {
 
-            setSnackOpen(false);
+            closeSnack();
             try {
-                parseAjvErrors(error, ajvErrors);
+                parseAjvErrors(error, ajvErrors, showSnackMessage);
             } catch (_) {
                 const statusText = error?.response?.statusText ?? "Unkown error occured, check console.";
                 if (statusText === "Incorrect currentPassword") {
@@ -58,7 +44,7 @@ export default function ChangePassword() {
                     return;
                 }
 
-                showSnack(statusText, "error");
+                showSnackMessage(statusText, "error");
                 console.log(error);
             }
         }
@@ -146,19 +132,6 @@ export default function ChangePassword() {
                     </Box>
                 </Card>
             </Stack>
-
-            <Snackbar
-                autoHideDuration={6000}
-                open={snackOpen}
-                onClose={handleSnackClose}
-                key={snackMessage}
-            >
-                <Alert onClose={handleSnackClose} severity={snackSeverity} sx={{
-                    width: '100%'
-                }}>
-                    {snackMessage}
-                </Alert>
-            </Snackbar>
         </div>
     )
 }

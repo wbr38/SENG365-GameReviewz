@@ -1,12 +1,14 @@
-import { Alert, Box, Button, Card, FormControl, Link, Snackbar, Stack, TextField, Typography } from "@mui/material";
+import { Box, Button, Card, FormControl, Link, Stack, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { useSnackbar } from "../components/SnackBar";
 import { joinErrorMessages, parseAjvErrors } from "../services/ajv.parser";
 import { Api } from "../services/api.service";
 import { useAuthStore } from "../store/auth-store";
 
 export default function LogIn() {
 
+    const { showSnackMessage } = useSnackbar();
     const navigate = useNavigate();
     const setAuth = useAuthStore((state) => state.setAuth);
 
@@ -15,15 +17,6 @@ export default function LogIn() {
 
     const [emailErrorMsg, setEmailErrorMsg] = useState<string[]>([]);
     const [passwordErrorMsg, setPasswordErrorMsg] = useState<string[]>([]);
-
-    const [snackOpen, setSnackOpen] = useState(false)
-    const [snackMessage, setSnackMessage] = useState("")
-    const handleSnackClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
-        if (reason === "clickaway") {
-            return;
-        }
-        setSnackOpen(false);
-    };
 
     const ajvErrors: { [prefix: string]: typeof setEmailErrorMsg } = {
         "data/email": setEmailErrorMsg,
@@ -40,11 +33,10 @@ export default function LogIn() {
             navigate("/"); // go to home page
         } catch (error: any) {
             try {
-                parseAjvErrors(error, ajvErrors);
+                parseAjvErrors(error, ajvErrors, showSnackMessage);
             } catch (_) {
                 const statusText = error?.response?.statusText ?? "Unkown error occured, check console.";
-                setSnackMessage(statusText);
-                setSnackOpen(true)
+                showSnackMessage(statusText, "error");
                 console.log(error);
             }
         }
@@ -125,19 +117,6 @@ export default function LogIn() {
                     </Box>
                 </Card>
             </Stack>
-
-            <Snackbar
-                autoHideDuration={6000}
-                open={snackOpen}
-                onClose={handleSnackClose}
-                key={snackMessage}
-            >
-                <Alert onClose={handleSnackClose} severity="error" sx={{
-                    width: '100%'
-                }}>
-                    {snackMessage}
-                </Alert>
-            </Snackbar>
         </div>
     )
 }

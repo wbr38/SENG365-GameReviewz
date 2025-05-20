@@ -1,7 +1,8 @@
-import { FormControl, InputLabel, Select, MenuItem, OutlinedInput, ListItemText, Checkbox, TextField, InputAdornment, Grid, Pagination } from "@mui/material";
-import { useState, useEffect } from "react";
-import { GameList, Genre, Platform, GameSortMethod, Api } from "../services/api.service";
+import { Checkbox, FormControl, Grid, InputAdornment, InputLabel, ListItemText, MenuItem, OutlinedInput, Pagination, Select, TextField } from "@mui/material";
+import { useEffect, useState } from "react";
+import { Api, GameList, GameSortMethod, Genre, Platform } from "../services/api.service";
 import GameCard from "./GameCard";
+import { useSnackbar } from "./SnackBar";
 
 export function GamesList(props: {
     search?: string,
@@ -12,6 +13,7 @@ export function GamesList(props: {
 }) {
     const { search, wishlistedByMe, ownedByMe, reviewerId, creatorId } = props;
 
+    const { showSnackMessage } = useSnackbar();
     const [page, setPage] = useState(1);
     const [perPage, setPerPage] = useState(10);
     const [gamesCount, setGamesCount] = useState(0);
@@ -121,9 +123,10 @@ export function GamesList(props: {
                 setGamesCount(gamesResponse.count);
                 setGames(gamesResponse.games);
                 window.scrollTo(0, 0);
-            } catch (err) {
-                // TODO: mui snackbar
-                console.log(err);
+            } catch (error: any) {
+                const statusText = error?.response?.statusText ?? "Unkown error occured, check console.";
+                showSnackMessage(statusText, "error");
+                console.log(error);
             } finally {
                 setLoading(false);
             }

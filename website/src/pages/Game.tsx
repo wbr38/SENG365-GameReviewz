@@ -4,6 +4,7 @@ import { Button, Card, CardContent, CardHeader, Dialog, DialogActions, DialogCon
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import GameCard from "../components/GameCard";
+import { useSnackbar } from "../components/SnackBar";
 import UserAvatar from "../components/UserAvatar";
 import { Api, GameInfo, GameList, Genre, Platform, Review } from "../services/api.service";
 import { useAuthStore } from "../store/auth-store";
@@ -80,6 +81,7 @@ function ReviewButton(props: {
     fetchReviews: () => Promise<void>
 }) {
     const { game, reviews, fetchReviews } = props;
+    const { showSnackMessage } = useSnackbar();
 
     // Buttons
     const navigate = useNavigate();
@@ -144,8 +146,9 @@ function ReviewButton(props: {
             );
             closeModal();
             fetchReviews(); // rerender reviews
-        } catch (error) {
-            // TOOD: snack bar or somehing
+        } catch (error: any) {
+            const statusText = error?.response?.statusText ?? "Unkown error occured, check console.";
+            showSnackMessage(statusText, "error");
             console.log(error);
         }
     }
@@ -409,6 +412,7 @@ function WishlistOwnedButtons(props: {
     allGenres: Genre[],
     allPlatforms: Platform[]
 }) {
+    const { showSnackMessage } = useSnackbar();
     const { game, allGenres, allPlatforms } = props;
     const [isWishlisted, setIsWishlisted] = useState<boolean | null>(null);
     const [isOwned, setIsOwned] = useState<boolean | null>(null);
@@ -450,8 +454,9 @@ function WishlistOwnedButtons(props: {
         try {
             await Api.wishlistGame(game.gameId);
             reloadButtons();
-        } catch (error) {
-            // TODO: snackbar
+        } catch (error: any) {
+            const statusText = error?.response?.statusText ?? "Unkown error occured, check console.";
+            showSnackMessage(statusText, "error");
             console.log(error);
         }
     }
@@ -460,8 +465,9 @@ function WishlistOwnedButtons(props: {
         try {
             await Api.unwishlistGame(game.gameId);
             reloadButtons();
-        } catch (error) {
-            // TODO: snackbar
+        } catch (error: any) {
+            const statusText = error?.response?.statusText ?? "Unkown error occured, check console.";
+            showSnackMessage(statusText, "error");
             console.log(error);
         }
     }
@@ -470,8 +476,9 @@ function WishlistOwnedButtons(props: {
         try {
             await Api.markGameOwned(game.gameId);
             reloadButtons();
-        } catch (error) {
-            // TODO: snackbar
+        } catch (error: any) {
+            const statusText = error?.response?.statusText ?? "Unkown error occured, check console.";
+            showSnackMessage(statusText, "error");
             console.log(error);
         }
     }
@@ -480,8 +487,9 @@ function WishlistOwnedButtons(props: {
         try {
             await Api.unmarkGameOwned(game.gameId);
             reloadButtons();
-        } catch (error) {
-            // TODO: snackbar
+        } catch (error: any) {
+            const statusText = error?.response?.statusText ?? "Unkown error occured, check console.";
+            showSnackMessage(statusText, "error");
             console.log(error);
         }
     }
@@ -510,6 +518,7 @@ export default function Game() {
     const params = useParams();
     const gameId = Number(params.id!);
 
+    const { showSnackMessage } = useSnackbar();
     const [game, setGame] = useState<GameInfo | null>(null);
     const [similarGamesPage, setSimilarGamesPage] = useState(1);
     const [similarGames, setSimilarGames] = useState<GameList[] | null>(null);
@@ -547,8 +556,9 @@ export default function Game() {
             try {
                 const gameResponse = await Api.getGameInfo(gameId, allGenres, allPlatforms);
                 setGame(gameResponse);
-            } catch (error) {
-                // TODO: mui snackbar (for 404)
+            } catch (error: any) {
+                const statusText = error?.response?.statusText ?? "Unkown error occured, check console.";
+                showSnackMessage(statusText, "error");
                 console.log(error);
             }
         };
@@ -591,8 +601,9 @@ export default function Game() {
                     });
 
                 setSimilarGames(similarGames);
-            } catch (error) {
-                // TODO: mui snackbar (for 404)
+            } catch (error: any) {
+                const statusText = error?.response?.statusText ?? "Unkown error occured, check console.";
+                showSnackMessage(statusText, "error");
                 console.log(error);
             }
         };

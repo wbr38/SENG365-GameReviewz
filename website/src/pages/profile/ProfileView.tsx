@@ -2,14 +2,16 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
-import { Alert, AlertProps, Button, Snackbar, TextField } from "@mui/material";
+import { Button, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
+import { useSnackbar } from "../../components/SnackBar";
 import UserAvatar from "../../components/UserAvatar";
 import { joinErrorMessages, parseAjvErrors } from "../../services/ajv.parser";
 import { Api, LoggedInUser } from "../../services/api.service";
 
 export default function ProfileView() {
 
+    const { showSnackMessage } = useSnackbar();
     const [user, setUser] = useState<LoggedInUser | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [imageVersion, setImageVersion] = useState(0); // to cause rerender of profile image
@@ -40,22 +42,6 @@ export default function ProfileView() {
     const [lastNameErrorMsg, setLastNameErrorMsg] = useState<string[]>([]);
     const [emailErrorMsg, setEmailErrorMsg] = useState<string[]>([]);
 
-    const [snackOpen, setSnackOpen] = useState(false)
-    const [snackMessage, setSnackMessage] = useState("")
-    const [snackSeverity, setSnackSeverity] = useState<AlertProps["severity"]>("error");
-    const handleSnackClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
-        if (reason === "clickaway") {
-            return;
-        }
-        setSnackOpen(false);
-    };
-
-    function showSnack(message: string, severity: typeof snackSeverity) {
-        setSnackMessage(message);
-        setSnackOpen(true);
-        setSnackSeverity(severity);
-    }
-
     const ajvErrors: { [prefix: string]: typeof setFirstNameErrorMsg } = {
         "data/firstName": setFirstNameErrorMsg,
         "data/lastName": setLastNameErrorMsg,
@@ -65,11 +51,11 @@ export default function ProfileView() {
     async function tryChangeProfileImage(file: File) {
         try {
             await Api.setUserImage(file);
-            showSnack("Successfully updated profile image", "success");
+            showSnackMessage("Successfully updated profile image", "success");
             setImageVersion(prev => prev + 1);
         } catch (error: any) {
             const statusText = error?.response?.statusText ?? "Unkown error occured, check console.";
-            showSnack(statusText, "error");
+            showSnackMessage(statusText, "error");
             console.log(error);
         }
     }
@@ -77,11 +63,11 @@ export default function ProfileView() {
     async function tryRemoveProfileImage() {
         try {
             await Api.removeUserImage();
-            showSnack("Successfully removed profile image", "success");
+            showSnackMessage("Successfully removed profile image", "success");
             setImageVersion(prev => prev + 1);
         } catch (error: any) {
             const statusText = error?.response?.statusText ?? "Unkown error occured, check console.";
-            showSnack(statusText, "error");
+            showSnackMessage(statusText, "error");
             console.log(error);
         }
     }
@@ -100,22 +86,22 @@ export default function ProfileView() {
 
             // no change made
             if (Object.keys(data).length === 0) {
-                showSnack("Please make some changes first", "warning");
+                showSnackMessage("Please make some changes first", "warning");
                 return;
             }
 
             await Api.editLoggedInUser(data);
-            showSnack("Successfully updated profile", "success");
+            showSnackMessage("Successfully updated profile", "success");
             
             // Reload
             reloadEditData();
         } catch (error: any) {
 
             try {
-                parseAjvErrors(error, ajvErrors);
+                parseAjvErrors(error, ajvErrors, showSnackMessage);
             } catch (_) {
                 const statusText = error?.response?.statusText ?? "Unkown error occured, check console.";
-                showSnack(statusText, "error");
+                showSnackMessage(statusText, "error");
                 console.log(error);
             }
         }
@@ -230,19 +216,6 @@ export default function ProfileView() {
                     <SaveIcon sx={{ marginLeft: "0.5ch" }} />
                 </Button>
             </div>
-
-            <Snackbar
-                autoHideDuration={6000}
-                open={snackOpen}
-                onClose={handleSnackClose}
-                key={snackMessage}
-            >
-                <Alert onClose={handleSnackClose} severity={snackSeverity} sx={{
-                    width: '100%'
-                }}>
-                    {snackMessage}
-                </Alert>
-            </Snackbar>
         </div>
     );
 }
