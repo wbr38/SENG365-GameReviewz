@@ -221,10 +221,10 @@ function CreateModal(props: {
                             startAdornment: <InputAdornment position="start">$</InputAdornment>,
                         },
                     }}
-                    // Price is default 0 and the html input shouldn't let invalid values be entered
-                    // error={priceErrorMsg.length > 0}
-                    // helperText={joinErrorMessages(priceErrorMsg)}
-                    // color={!!priceErrorMsg ? "error" : "primary"}
+                // Price is default 0 and the html input shouldn't let invalid values be entered
+                // error={priceErrorMsg.length > 0}
+                // helperText={joinErrorMessages(priceErrorMsg)}
+                // color={!!priceErrorMsg ? "error" : "primary"}
                 />
 
                 <FormControl
@@ -245,7 +245,7 @@ function CreateModal(props: {
                         component="label"
                         variant="outlined"
                         startIcon={<CloudUploadIcon />}
-                        sx={{marginTop: "1em"}}
+                        sx={{ marginTop: "1em" }}
                     >
                         Upload image
                         <input
@@ -335,18 +335,23 @@ function EditModal(props: {
             if (!gameList || !allGenres || !allPlatforms)
                 return;
 
-            const game = await Api.getGameInfo(gameList.gameId, allGenres, allPlatforms);
-            setGame(game);
+            try {
+                const game = await Api.getGameInfo(gameList.gameId, allGenres, allPlatforms);
+                setGame(game);
 
-            setTitle(game.title);
-            setDescription(game.description);
-            const genre = allGenres.filter((x) => x.genreId === game.genreId);
-            setGenre(genre[0].name);
-            const platforms = allPlatforms
-                .filter((x) => game.platformIds.includes(x.platformId))
-                .map(x => x.name);
-            setPlatforms(platforms);
-            setPrice(game.price / 100);
+                setTitle(game.title);
+                setDescription(game.description);
+                const genre = allGenres.filter((x) => x.genreId === game.genreId);
+                setGenre(genre[0].name);
+                const platforms = allPlatforms
+                    .filter((x) => game.platformIds.includes(x.platformId))
+                    .map(x => x.name);
+                setPlatforms(platforms);
+                setPrice(game.price / 100);
+            } catch (error) {
+                showSnackMessage("Unkown error occured, check console.", "error");
+                console.log(error);
+            }
         }
         fetchGameInfo();
     }, [gameList]);

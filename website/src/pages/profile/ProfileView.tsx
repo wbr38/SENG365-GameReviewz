@@ -20,11 +20,16 @@ export default function ProfileView() {
     const [email, setEmail] = useState<string | null>(null);
 
     async function fetchEditData() {
-        const userResponse = await Api.getLoggedInUser();
-        setUser(userResponse);
-        setFirstName(userResponse.firstName);
-        setLastName(userResponse.lastName);
-        setEmail(userResponse.email);
+        try {
+            const userResponse = await Api.getLoggedInUser();
+            setUser(userResponse);
+            setFirstName(userResponse.firstName);
+            setLastName(userResponse.lastName);
+            setEmail(userResponse.email);
+        } catch (error) {
+            showSnackMessage("Unkown error occured, check console.", "error");
+            console.log(error);
+        }
     }
 
     function reloadEditData() {
@@ -75,13 +80,13 @@ export default function ProfileView() {
     async function tryEditProfile() {
         try {
             let data: Parameters<typeof Api.editLoggedInUser>[0] = {};
-            if (firstName && firstName !== user?.firstName) 
+            if (firstName && firstName !== user?.firstName)
                 data.firstName = firstName;
 
-            if (lastName && lastName !== user?.lastName) 
+            if (lastName && lastName !== user?.lastName)
                 data.lastName = lastName;
 
-            if (email && email !== user?.email) 
+            if (email && email !== user?.email)
                 data.email = email;
 
             // no change made
@@ -92,7 +97,7 @@ export default function ProfileView() {
 
             await Api.editLoggedInUser(data);
             showSnackMessage("Successfully updated profile", "success");
-            
+
             // Reload
             reloadEditData();
         } catch (error: any) {

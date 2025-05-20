@@ -173,31 +173,31 @@ function ReviewButton(props: {
                 </DialogTitle>
 
                 <DialogContent>
-                        <h1 style={{ margin: 0 }}>{game.title}</h1>
+                    <h1 style={{ margin: 0 }}>{game.title}</h1>
 
-                        <div>
-                            <Typography>{reviewStars}/10 stars</Typography>
-                            <Rating
-                                value={reviewStars}
-                                onChange={(event, newValue) => {
-                                    if (newValue)
-                                        setReviewStars(newValue);
-                                }}
-                                max={10}
-                            />
-                        </div>
-
-                        <TextField
-                            label="Message (Optional)"
-                            multiline
-                            rows={4}
-                            sx={{
-                                width: "25vw",
-                                margin: "1em 0"
+                    <div>
+                        <Typography>{reviewStars}/10 stars</Typography>
+                        <Rating
+                            value={reviewStars}
+                            onChange={(event, newValue) => {
+                                if (newValue)
+                                    setReviewStars(newValue);
                             }}
-                            value={reviewMessage}
-                            onChange={(event) => setReviewMessage(event.target.value)}
+                            max={10}
                         />
+                    </div>
+
+                    <TextField
+                        label="Message (Optional)"
+                        multiline
+                        rows={4}
+                        sx={{
+                            width: "25vw",
+                            margin: "1em 0"
+                        }}
+                        value={reviewMessage}
+                        onChange={(event) => setReviewMessage(event.target.value)}
+                    />
                 </DialogContent>
 
                 <DialogActions>
@@ -419,19 +419,29 @@ function WishlistOwnedButtons(props: {
     const isCreator = game.creatorId === authState.userId;
 
     async function checkIfOwned() {
-        const wishlistedGames = await Api.getGames(allGenres, allPlatforms, {
-            ownedByMe: true
-        });
+        try {
+            const wishlistedGames = await Api.getGames(allGenres, allPlatforms, {
+                ownedByMe: true
+            });
 
-        setIsOwned(wishlistedGames.games.some((x) => x.gameId === game.gameId));
+            setIsOwned(wishlistedGames.games.some((x) => x.gameId === game.gameId));
+        } catch (error) {
+            showSnackMessage("Unkown error occured, check console.", "error");
+            console.log(error);
+        }
     }
 
     async function checkIsWishlisted() {
-        const wishlistedGames = await Api.getGames(allGenres, allPlatforms, {
-            wishlistedByMe: true
-        });
+        try {
+            const wishlistedGames = await Api.getGames(allGenres, allPlatforms, {
+                wishlistedByMe: true
+            });
 
-        setIsWishlisted(wishlistedGames.games.some((x) => x.gameId === game.gameId));
+            setIsWishlisted(wishlistedGames.games.some((x) => x.gameId === game.gameId));
+        } catch (error) {
+            showSnackMessage("Unkown error occured, check console.", "error");
+            console.log(error);
+        }
     }
 
     function reloadButtons() {
@@ -610,8 +620,13 @@ export default function Game() {
 
     async function fetchReviews() {
         if (!game) return;
-        const reviews = await Api.getReviews(game.gameId);
-        setReviews(reviews);
+        try {
+            const reviews = await Api.getReviews(game.gameId);
+            setReviews(reviews);
+        } catch (error) {
+            showSnackMessage("Unkown error occured, check console.", "error");
+            console.log(error);
+        }
     }
 
     // Fetch Reviews
