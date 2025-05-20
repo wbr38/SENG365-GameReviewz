@@ -15,10 +15,13 @@ export default function NavBar() {
     const authState = useAuthStore((state) => state.auth);
     const isLoggedIn = authState.token !== null && authState.userId !== null;
 
-    const [searchText, setSearchText] = useState("");
+    const [searchText, setSearchText] = useState<string | null>(null);
     const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
     const SEARCH_DEBOUNCE_MS = 300;
+
     useEffect(() => {
+        if (searchText == null)
+            return;
 
         if (searchTimeout)
             clearTimeout(searchTimeout);
