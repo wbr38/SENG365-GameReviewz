@@ -80,8 +80,10 @@ export function GamesList(props: {
                 // By default all genres and all platforms selected
                 setSelectedGenres(genresResponse.map(x => x.name));
                 setSelectedPlatforms(platformsResponse.map(x => x.name));
-            } catch (err) {
-                console.log("Error fetching genres and platforms:", err);
+            } catch (error: any) {
+                const statusText = error?.response?.statusText ?? "Unkown error occured, check console.";
+                showSnackMessage(statusText, "error");
+                console.log("Error fetching genres and platforms:", error);
             }
         }
 

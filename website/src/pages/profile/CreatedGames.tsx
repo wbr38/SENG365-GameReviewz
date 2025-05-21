@@ -668,7 +668,6 @@ export default function CreatedGames() {
                             </Button>
 
                             {/* Delete button */}
-                            {/* TODO */}
                             <Button
                                 variant="outlined"
                                 startIcon={<DeleteForeverIcon />}

@@ -425,8 +425,9 @@ function WishlistOwnedButtons(props: {
             });
 
             setIsOwned(wishlistedGames.games.some((x) => x.gameId === game.gameId));
-        } catch (error) {
-            showSnackMessage("Unkown error occured, check console.", "error");
+        } catch (error: any) {
+            const statusText = error?.response?.statusText ?? "Unkown error occured, check console.";
+            showSnackMessage(statusText, "error");
             console.log(error);
         }
     }
@@ -438,8 +439,9 @@ function WishlistOwnedButtons(props: {
             });
 
             setIsWishlisted(wishlistedGames.games.some((x) => x.gameId === game.gameId));
-        } catch (error) {
-            showSnackMessage("Unkown error occured, check console.", "error");
+        } catch (error: any) {
+            const statusText = error?.response?.statusText ?? "Unkown error occured, check console.";
+            showSnackMessage(statusText, "error");
             console.log(error);
         }
     }
@@ -542,8 +544,10 @@ export default function Game() {
                 ]);
                 setAllGenres(genresResponse);
                 setAllPlatforms(platformsResponse);
-            } catch (err) {
-                console.log("Error fetching genres and platforms:", err);
+            } catch (error: any) {
+                const statusText = error?.response?.statusText ?? "Unkown error occured, check console.";
+                showSnackMessage(statusText, "error");
+                console.log(error);
             }
         }
 
@@ -623,8 +627,9 @@ export default function Game() {
         try {
             const reviews = await Api.getReviews(game.gameId);
             setReviews(reviews);
-        } catch (error) {
-            showSnackMessage("Unkown error occured, check console.", "error");
+        } catch (error: any) {
+            const statusText = error?.response?.statusText ?? "Unkown error occured, check console.";
+            showSnackMessage(statusText, "error");
             console.log(error);
         }
     }

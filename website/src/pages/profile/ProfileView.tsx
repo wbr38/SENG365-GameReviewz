@@ -26,8 +26,9 @@ export default function ProfileView() {
             setFirstName(userResponse.firstName);
             setLastName(userResponse.lastName);
             setEmail(userResponse.email);
-        } catch (error) {
-            showSnackMessage("Unkown error occured, check console.", "error");
+        } catch (error: any) {
+            const statusText = error?.response?.statusText ?? "Unkown error occured, check console.";
+            showSnackMessage(statusText, "error");
             console.log(error);
         }
     }

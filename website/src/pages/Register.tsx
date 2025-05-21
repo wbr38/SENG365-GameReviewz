@@ -70,14 +70,6 @@ export default function Register() {
             navigate("/");
     }, []);
 
-    // TODO: Remove after testing
-    // useEffect(() => {
-    //     setFirstName("Ads");
-    //     setLastName("Ads");
-    //     setEmail("a@b.com");
-    //     setPassword("ACoolPassword");
-    // }, []);
-
     return (
         <div>
             <Stack>
