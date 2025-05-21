@@ -115,6 +115,8 @@ function CreateModal(props: {
         <Dialog
             open={isOpen}
             onClose={closeModal}
+            fullWidth
+            maxWidth="sm"
         >
             <DialogTitle>
                 Create Game
@@ -124,7 +126,6 @@ function CreateModal(props: {
                 display: "flex",
                 flexDirection: "column",
                 gap: "1em",
-                width: "50vw"
             }}>
                 {/*  Title */}
                 <TextField
