@@ -405,6 +405,8 @@ function EditModal(props: {
         <Dialog
             open={isOpen}
             onClose={closeModal}
+            fullWidth
+            maxWidth="sm"
         >
             <DialogTitle>
                 Edit Game: {game.title}
@@ -414,7 +416,6 @@ function EditModal(props: {
                 display: "flex",
                 flexDirection: "column",
                 gap: "1em",
-                width: "50vw"
             }}>
                 <h2 style={{ margin: 0 }}>title</h2>
 
@@ -602,6 +603,8 @@ function DeleteModal(props: {
             <Dialog
                 open={isOpen}
                 onClose={closeModal}
+                fullWidth
+                maxWidth="sm"
             >
                 <DialogTitle>
                     Delete Game: {game.title}
@@ -610,8 +613,7 @@ function DeleteModal(props: {
                 <DialogContent sx={{
                     display: "flex",
                     flexDirection: "column",
-                    gap: "1em",
-                    width: "50vw"
+                    gap: "1em"
                 }}>
                     <h3 style={{ margin: 0 }}>This game cannot be deleted because it is currently owned or wishlisted by someone.</h3>
                 </DialogContent>
@@ -627,6 +629,8 @@ function DeleteModal(props: {
             <Dialog
                 open={isOpen}
                 onClose={closeModal}
+                fullWidth
+                maxWidth="sm"
             >
                 <DialogTitle>
                     Delete Game: {game.title}
@@ -635,8 +639,7 @@ function DeleteModal(props: {
                 <DialogContent sx={{
                     display: "flex",
                     flexDirection: "column",
-                    gap: "1em",
-                    width: "50vw"
+                    gap: "1em"
                 }}>
                     <h3 style={{ margin: 0 }}>This game cannot be deleted as it has been reviewed.</h3>
                 </DialogContent>
@@ -651,6 +654,8 @@ function DeleteModal(props: {
         <Dialog
             open={isOpen}
             onClose={closeModal}
+            fullWidth
+            maxWidth="sm"
         >
             <DialogTitle>
                 Delete Game: {game.title}
@@ -659,8 +664,7 @@ function DeleteModal(props: {
             <DialogContent sx={{
                 display: "flex",
                 flexDirection: "column",
-                gap: "1em",
-                width: "50vw"
+                gap: "1em"
             }}>
                 <h3 style={{ margin: 0 }}>Are you sure you want to delete this game?</h3>
             </DialogContent>
