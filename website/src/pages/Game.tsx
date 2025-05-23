@@ -655,11 +655,10 @@ export default function Game() {
                 margin: "auto"
             }}
         >
-            {/* Game Image (Left) */}
+            {/* Game Image / Creator Image (Top Left) */}
             <div style={{
                 gridColumn: 1,
-                gridRow: 1,
-                height: "6em" // why is this needed???
+                gridRow: "1/3",
             }}>
                 <img style={{ ...imageStyle }}
                     src={Api.getGameImage(gameId)} alt=""
@@ -669,13 +668,18 @@ export default function Game() {
                     game={game}
                     allGenres={allGenres}
                     allPlatforms={allPlatforms} />
+
+                <div style={{marginTop: "1em"}}>
+                    <UserAvatar user={game.creator} size={280} variant="square" />
+                    <p style={{ margin: 0 }}>Creator: {game.creatorName()}</p>
+                </div>
             </div>
 
             {/* Game Details (Right) */}
             <div style={{
                 textAlign: "left",
                 gridColumn: 2,
-                gridRow: "1/3",
+                gridRow: "1",
             }}>
                 <Typography gutterBottom variant="h3" component="div">
                     {game.title}
@@ -702,6 +706,13 @@ export default function Game() {
                     <p style={{ margin: "0" }}><GiftIcon sx={iconStyle} />{game.numberOfWishlists} Users wishlisted</p>
                 </div>
 
+            </div>
+
+            {/* Similar games, right */}
+            <div style={{
+                gridColumn: 2,
+                gridRow: 2,
+            }}>
                 {similarGames &&
                     <SimilarGames
                         games={similarGames}
@@ -716,8 +727,6 @@ export default function Game() {
                 gridColumn: 1,
                 gridRow: 2,
             }}>
-                <UserAvatar user={game.creator} size={280} variant="square" />
-                <p style={{ margin: 0 }}>Creator: {game.creatorName()}</p>
             </div>
 
             {/* Rating number (left) */}
@@ -730,6 +739,7 @@ export default function Game() {
                 </Typography>
             </div>
 
+            {/* Reviews (right) */}
             {
                 reviews &&
                 <ReviewsSection fetchReviews={fetchReviews} game={game} reviews={reviews} />
