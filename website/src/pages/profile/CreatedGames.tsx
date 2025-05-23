@@ -97,6 +97,13 @@ function CreateModal(props: {
             closeModal();
             showSnackMessage("Game created!", "success");
             refresh();
+
+            // reset state
+            setTitle("");
+            setDescription("");
+            setGenre("");
+            setPrice(0);
+            setImage(null);
         } catch (error: any) {
             try {
                 parseAjvErrors(error, ajvErrors, showSnackMessage);
