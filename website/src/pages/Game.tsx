@@ -235,6 +235,7 @@ function ReviewsSection(props: {
             </div>
 
             {/* ReviewCard */}
+            {reviews.length === 0 && <p style={{textAlign: "left"}}>No reviews yet.</p>}
             <div>
                 {reviews.map((review) => (
                     <Card
