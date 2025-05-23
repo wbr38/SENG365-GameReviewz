@@ -15,14 +15,22 @@ export function GamesList(props: {
     const { search, wishlistedByMe, ownedByMe, reviewerId, creatorId, footer } = props;
 
     const { showSnackMessage } = useSnackbar();
-    const [page, setPage] = useState(1);
-    const [perPage, setPerPage] = useState(10);
     const [gamesCount, setGamesCount] = useState(0);
     const [games, setGames] = useState<GameList[]>([]);
     const [allGenres, setAllGenres] = useState<Genre[] | null>(null);
     const [allPlatforms, setAllPlatforms] = useState<Platform[] | null>(null);
     const [loading, setLoading] = useState(true);
     const [maxPrice, setMaxPrice] = useState(0.0);
+
+    const [page, setPage] = useState(1);
+    const [perPage, setPerPage] = useState(10);
+    const numPages = Math.ceil(gamesCount / perPage);
+
+    // Make sure we stay on a valid page if numPages changes
+    useEffect(() => {
+        if (numPages > 0 && page > numPages)
+            setPage(numPages);
+    }, [numPages]);
 
     const [gameSortMethod, setGameSortMethod] = useState(GameSortMethod.CREATED_ASC);
     const gameSortOptions: [GameSortMethod, string][] = [
@@ -138,7 +146,6 @@ export function GamesList(props: {
         fetchGames();
     }, [search, page, perPage, gameSortMethod, maxPrice, selectedGenres, selectedPlatforms, allGenres, allPlatforms, wishlistedByMe, ownedByMe, creatorId, reviewerId]);
 
-    const numPages = Math.ceil(gamesCount / perPage);
 
     return (
         <div>
