@@ -50,12 +50,6 @@ export default function LogIn() {
             navigate("/");
     }, []);
 
-    // TODO: (10 Remove after testing
-    useEffect(() => {
-        setEmail("k@gmail.com");
-        setPassword("password");
-    }, []);
-
     return (
         <div>
             <Stack>

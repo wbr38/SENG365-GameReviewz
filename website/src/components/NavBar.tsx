@@ -1,4 +1,4 @@
-import SearchIcon from "@mui/icons-material/Search";
+import { styled } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -7,7 +7,18 @@ import Toolbar from "@mui/material/Toolbar";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/auth-store";
-import * as S from "../styles/NavBar.styles";
+import GameSearch from "./GameSearch";
+
+export const Title = styled(Link)(({ theme }) => ({
+    ...theme.typography.h6,
+    color: "inherit",
+    display: "flex",
+    fontFamily: "monospace",
+    fontWeight: "700",
+    letterSpacing: "0.1rem",
+    marginRight: "auto",
+    textDecoration: "none",
+}));
 
 export default function NavBar() {
 
@@ -54,9 +65,9 @@ export default function NavBar() {
             <Container >
                 <Toolbar disableGutters>
                     {/* Website Title */}
-                    <S.Title to="/">
+                    <Title to="/">
                         Game Reviewz
-                    </S.Title>
+                    </Title>
 
                     {/* Links */}
                     <Box sx={{ display: "flex" }}>
@@ -72,16 +83,7 @@ export default function NavBar() {
                         ))}
                     </Box>
 
-                    <S.Search>
-                        <S.IconWrapper>
-                            <SearchIcon />
-                        </S.IconWrapper>
-                        <S.StyledInputBase
-                            placeholder="Search"
-                            onChange={(event) => setSearchText(event.target.value)}
-                        />
-                    </S.Search>
-
+                    <GameSearch />
                 </Toolbar>
             </Container>
         </AppBar>
