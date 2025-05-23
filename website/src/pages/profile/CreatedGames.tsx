@@ -504,14 +504,55 @@ function EditModal(props: {
 }
 
 function DeleteModal(props: {
-    game: GameList | null
+    gameList: GameList | null
     isOpen: boolean
     closeModal: () => void,
     refresh: () => void,
 }) {
 
-    const { game, isOpen, refresh, closeModal } = props;
+    const { gameList, isOpen, refresh, closeModal } = props;
     const { showSnackMessage } = useSnackbar();
+    const [game, setGame] = useState<GameInfo | null>(null);
+
+    // Fetch allGenres and allPlatforms once, as it probably won't change between requests
+    const [allGenres, setAllGenres] = useState<Genre[] | null>(null);
+    const [allPlatforms, setAllPlatforms] = useState<Platform[] | null>(null);
+    useEffect(() => {
+        async function fetchGenresAndPlatforms() {
+            try {
+                const [genresResponse, platformsResponse] = await Promise.all([
+                    Api.getGenres(),
+                    Api.getPlatforms(),
+                ]);
+                setAllGenres(genresResponse);
+                setAllPlatforms(platformsResponse);
+            } catch (error: any) {
+                const statusText = error?.response?.statusText ?? "Unkown error occured, check console.";
+                showSnackMessage(statusText, "error");
+                console.log("Error fetching genres and platforms:", error);
+            }
+        }
+
+        // Only fetch once
+        if (!allGenres || !allPlatforms)
+            fetchGenresAndPlatforms();
+    }, []); // empty dependency array to only call once on page load
+
+    useEffect(() => {
+        async function fetchGameInfo() {
+            if (!gameList || !allGenres || !allPlatforms)
+                return;
+
+            try {
+                const game = await Api.getGameInfo(gameList.gameId, allGenres, allPlatforms);
+                setGame(game);
+            } catch (error) {
+                showSnackMessage("Unkown error occured, check console.", "error");
+                console.log(error);
+            }
+        }
+        fetchGameInfo();
+    }, [gameList]);
 
     const [hasReviews, setHasReviews] = useState<boolean | null>(null);
     useEffect(() => {
@@ -538,7 +579,6 @@ function DeleteModal(props: {
             showSnackMessage("Game deleted!", "success");
             refresh();
         } catch (error: any) {
-            // TODO: Games that have been wishlisted can't be deleted (error from ref api impl)
             const statusText = error?.response?.statusText ?? "Unkown error occured, check console.";
             showSnackMessage(statusText, "error");
             console.log("Error fetching genres and platforms:", error);
@@ -548,6 +588,32 @@ function DeleteModal(props: {
 
     if (!game)
         return <></>;
+
+    // Games that have been wishlisted can't be deleted (error from ref api impl)
+    if (game.numberOfOwners > 0 || game.numberOfWishlists > 0)
+        return (
+            <Dialog
+                open={isOpen}
+                onClose={closeModal}
+            >
+                <DialogTitle>
+                    Delete Game: {game.title}
+                </DialogTitle>
+
+                <DialogContent sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "1em",
+                    width: "50vw"
+                }}>
+                    <h3 style={{ margin: 0 }}>This game cannot be deleted because it is currently owned or wishlisted by someone.</h3>
+                </DialogContent>
+
+                <DialogActions>
+                    <Button onClick={closeModal}>Exit</Button>
+                </DialogActions>
+            </Dialog>
+        );
 
     if (hasReviews)
         return (
@@ -693,7 +759,7 @@ export default function CreatedGames() {
             />
 
             <DeleteModal
-                game={gameToDelete}
+                gameList={gameToDelete}
                 isOpen={deleteModalOpen}
                 refresh={refresh}
                 closeModal={closeDeleteModal}
