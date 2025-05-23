@@ -51,6 +51,7 @@ export default function Home() {
             }}>
                 {links.map(link => (
                     <Button
+                        key={link.name}
                         variant="outlined"
                         color={link.color ?? "primary"}
                         onClick={() => navigate(link.link)}
