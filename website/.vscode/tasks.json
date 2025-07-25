@@ -39,7 +39,7 @@
 			"label": "Run API Server",
 			"type": "npm",
 			"script": "start",
-			"path": "../seng365-assignment1-ref-impl",
+			"path": "../api",
 			"dependsOn": [
 				"UC DB ssh tunnel"
 			],
@@ -77,7 +77,7 @@
 				"background": {
 					"activeOnStart": true,
 					"beginsPattern": "Connecting\\.\\.\\.",
-					"endsPattern": "Tunnel ready"
+					"endsPattern": "Connection .* succeeded!"
 				}
 			}
 		}
