@@ -2,7 +2,7 @@
 
 See:
 - [API](./api/)
-- [Website](./api/)
+- [Website](./website/)
 
 ## Screenshots
 ![games page](./imgs/games_page.png)
